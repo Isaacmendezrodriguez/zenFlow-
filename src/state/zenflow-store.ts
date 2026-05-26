@@ -109,6 +109,7 @@ interface ZenflowState {
   activeTimer?: { blockId?: ID; isRunning: boolean; elapsedSeconds: number; durationSeconds: number };
   toast?: string;
   hydrateWorkspace: (input: Partial<Pick<ZenflowState, "organizations" | "projects" | "tasks" | "subtasks" | "taskLinks" | "calendarBlocks" | "activityLogs" | "notifications" | "userSettings" | "trashItems">>) => void;
+  syncWorkspace: () => Promise<void>;
   setToast: (message?: string) => void;
   updateFilters: (input: Partial<ZenflowFilters>) => void;
   resetFilters: () => void;
@@ -164,6 +165,12 @@ export const useZenflowStore = create<ZenflowState>((set, get) => ({
   toast: undefined,
 
   hydrateWorkspace: (input) => set((state) => ({ ...state, ...input })),
+
+  syncWorkspace: async () => {
+    if (!isSupabaseConfigured) return;
+    await remoteSyncQueue;
+    await refreshRemoteWorkspace();
+  },
 
   setToast: (message) => set({ toast: message }),
 

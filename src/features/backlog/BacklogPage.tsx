@@ -1,5 +1,5 @@
-import { Eye, Link as LinkIcon, MoreHorizontal, Pencil, SlidersHorizontal, Timer } from "lucide-react";
-import { useState } from "react";
+import { Eye, Link as LinkIcon, MoreHorizontal, Pencil, Save, SlidersHorizontal, Timer, X } from "lucide-react";
+import { useState, type Dispatch, type SetStateAction } from "react";
 import { Link } from "react-router-dom";
 import { Badge } from "../../components/ui/Badge";
 import { Button } from "../../components/ui/Button";
@@ -28,12 +28,22 @@ type BacklogDialog =
   | { type: "complete"; task: Task; targetStatus: TaskStatus }
   | { type: "delete"; task: Task };
 
+type PendingMove = {
+  taskId: string;
+  targetStatus: TaskStatus;
+  subtaskId?: string;
+  realHours?: number;
+  forceCompleteSubtasks?: boolean;
+};
+
 export function BacklogPage() {
   const [view, setView] = useState("expanded");
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [draggingTaskId, setDraggingTaskId] = useState<string | null>(null);
   const [dialog, setDialog] = useState<BacklogDialog | null>(null);
   const [showFilters, setShowFilters] = useState(true);
+  const [pendingMoves, setPendingMoves] = useState<PendingMove[]>([]);
+  const [isSavingMoves, setIsSavingMoves] = useState(false);
   const userSettings = useZenflowStore((state) => state.userSettings);
   const filters = useZenflowStore((state) => state.filters);
   const updateFilters = useZenflowStore((state) => state.updateFilters);
@@ -42,6 +52,7 @@ export function BacklogPage() {
   const projects = useZenflowStore((state) => state.projects);
   const tasks = useZenflowStore((state) => state.tasks);
   const moveTask = useZenflowStore((state) => state.moveTask);
+  const syncWorkspace = useZenflowStore((state) => state.syncWorkspace);
   const completeSubtask = useZenflowStore((state) => state.completeSubtask);
   const archiveTask = useZenflowStore((state) => state.archiveTask);
   const deleteTask = useZenflowStore((state) => state.deleteTask);
@@ -49,7 +60,12 @@ export function BacklogPage() {
   const effectiveView = userSettings.backlogView === "compact" ? "compact" : view;
   const scopedProjects = projects.filter((project) => filters.organizationId === "all" || project.organizationId === filters.organizationId);
   const searchQuery = filters.searchQuery.trim().toLowerCase();
-  const filteredTasks = tasks.filter((task) => {
+  const pendingByTask = new Map(pendingMoves.map((move) => [move.taskId, move]));
+  const tasksWithPendingStatus = tasks.map((task) => {
+    const pending = pendingByTask.get(task.id);
+    return pending ? { ...task, status: pending.targetStatus, progress: getPreviewProgress(task, pending.targetStatus) } : task;
+  });
+  const filteredTasks = tasksWithPendingStatus.filter((task) => {
     if (filters.organizationId !== "all" && task.organizationId !== filters.organizationId) return false;
     if (filters.projectId !== "all" && task.projectId !== filters.projectId) return false;
     if (filters.status !== "all" && (TASK_STATUSES as readonly string[]).includes(filters.status) && task.status !== filters.status) return false;
@@ -105,6 +121,23 @@ export function BacklogPage() {
         <Button variant="outline" onClick={resetFilters}>Limpiar</Button>
       </div>
 
+      {pendingMoves.length ? (
+        <div className="mb-4 flex flex-col gap-3 rounded-xl border border-primary/30 bg-primary/10 p-3 text-sm text-on-surface sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="font-semibold">{pendingMoves.length} cambio{pendingMoves.length === 1 ? "" : "s"} pendiente{pendingMoves.length === 1 ? "" : "s"} de guardar</p>
+            <p className="text-xs text-on-surface-variant">El backlog ya refleja el movimiento. Presiona Guardar cambios para sincronizarlo con Supabase.</p>
+          </div>
+          <div className="flex gap-2">
+            <Button variant="outline" icon={<X className="h-4 w-4" />} disabled={isSavingMoves} onClick={() => setPendingMoves([])}>
+              Descartar
+            </Button>
+            <Button icon={<Save className="h-4 w-4" />} disabled={isSavingMoves} onClick={() => savePendingMoves(pendingMoves, tasks, completeSubtask, moveTask, syncWorkspace, setPendingMoves, setDialog, setIsSavingMoves)}>
+              {isSavingMoves ? "Guardando..." : "Guardar cambios"}
+            </Button>
+          </div>
+        </div>
+      ) : null}
+
       <div className="flex flex-1 gap-6 overflow-x-auto pb-4">
         {statuses.map((status) => (
           <KanbanColumn
@@ -118,7 +151,8 @@ export function BacklogPage() {
               const task = filteredTasks.find((item) => item.id === draggingTaskId);
               setDraggingTaskId(null);
               if (!task) return;
-              handleMoveTask(task, targetStatus, subtasks, completeSubtask, moveTask, setDialog);
+              const originalTask = tasks.find((item) => item.id === task.id) ?? task;
+              handleMoveTask(originalTask, targetStatus, subtasks, setDialog, setPendingMoves);
             }}
             onEdit={setEditingTask}
             onArchive={(task) => {
@@ -128,6 +162,7 @@ export function BacklogPage() {
             onDelete={(task) => {
               setDialog({ type: "delete", task });
             }}
+            pendingTaskIds={new Set(pendingMoves.map((move) => move.taskId))}
           />
         ))}
       </div>
@@ -137,15 +172,12 @@ export function BacklogPage() {
         subtasks={subtasks}
         onClose={() => setDialog(null)}
         onConfirmProgress={(payload) => {
-          completeSubtask(payload.subtaskId, payload.realHours);
-          const result = moveTask(payload.task.id, payload.targetStatus);
-          if (!result.ok) setDialog({ type: "message", title: "Movimiento bloqueado", message: result.message ?? "No se pudo mover la tarea." });
-          else setDialog(null);
+          stagePendingMove(setPendingMoves, { taskId: payload.task.id, targetStatus: payload.targetStatus, subtaskId: payload.subtaskId, realHours: payload.realHours });
+          setDialog(null);
         }}
         onConfirmComplete={(task, targetStatus) => {
-          const result = moveTask(task.id, targetStatus, { forceCompleteSubtasks: true });
-          if (!result.ok) setDialog({ type: "message", title: "Movimiento bloqueado", message: result.message ?? "No se pudo completar la tarea." });
-          else setDialog(null);
+          stagePendingMove(setPendingMoves, { taskId: task.id, targetStatus, forceCompleteSubtasks: true });
+          setDialog(null);
         }}
         onConfirmDelete={(task) => {
           deleteTask(task.id);
@@ -166,6 +198,7 @@ function KanbanColumn({
   onEdit,
   onArchive,
   onDelete,
+  pendingTaskIds,
 }: {
   status: TaskStatus;
   compact: boolean;
@@ -176,6 +209,7 @@ function KanbanColumn({
   onEdit: (task: Task) => void;
   onArchive: (task: Task) => void;
   onDelete: (task: Task) => void;
+  pendingTaskIds: Set<string>;
 }) {
   const columnTasks = tasks.filter((task) => task.status === status && !task.isArchived && !task.deletedAt);
 
@@ -201,7 +235,7 @@ function KanbanColumn({
         {columnTasks.length === 0 ? (
           <EmptyState title="Sin tareas" description="No hay cards en esta columna." className="min-h-36" />
         ) : (
-          columnTasks.map((task) => <KanbanCard key={task.id} task={task} compact={compact} onEdit={onEdit} onDragStart={onDragStart} onArchive={onArchive} onDelete={onDelete} />)
+          columnTasks.map((task) => <KanbanCard key={task.id} task={task} compact={compact} isPending={pendingTaskIds.has(task.id)} onEdit={onEdit} onDragStart={onDragStart} onArchive={onArchive} onDelete={onDelete} />)
         )}
       </div>
     </section>
@@ -215,6 +249,7 @@ function KanbanCard({
   onDragStart,
   onArchive,
   onDelete,
+  isPending,
 }: {
   task: Task;
   compact: boolean;
@@ -222,6 +257,7 @@ function KanbanCard({
   onDragStart: (taskId: string | null) => void;
   onArchive: (task: Task) => void;
   onDelete: (task: Task) => void;
+  isPending: boolean;
 }) {
   const organizations = useZenflowStore((state) => state.organizations);
   const projects = useZenflowStore((state) => state.projects);
@@ -243,6 +279,7 @@ function KanbanCard({
         <div className="flex flex-wrap gap-1.5">
           <Badge tone={priorityTone[task.priority]}>{PRIORITY_LABELS[task.priority]}</Badge>
           <Badge>{task.type === "complex" ? "Compleja" : "Simple"}</Badge>
+          {isPending ? <Badge tone="primary">Pendiente</Badge> : null}
         </div>
         <MoreHorizontal className="h-4 w-4 text-on-surface-variant" />
       </div>
@@ -296,9 +333,8 @@ function handleMoveTask(
   task: Task,
   targetStatus: TaskStatus,
   subtasks: Subtask[],
-  completeSubtask: ReturnType<typeof useZenflowStore.getState>["completeSubtask"],
-  moveTask: ReturnType<typeof useZenflowStore.getState>["moveTask"],
   setDialog: (dialog: BacklogDialog) => void,
+  setPendingMoves: Dispatch<SetStateAction<PendingMove[]>>,
 ) {
   if (task.status === targetStatus) return;
   if (task.type === "complex" && task.status === "not_started" && targetStatus === "in_progress") {
@@ -309,12 +345,58 @@ function handleMoveTask(
       return;
     }
   }
-  const result = moveTask(task.id, targetStatus);
-  if (!result.ok && targetStatus === "done" && task.type === "complex") {
-    setDialog({ type: "complete", task, targetStatus });
-    return;
+  if (targetStatus === "done" && task.type === "complex") {
+    const pendingSubtasks = subtasks.filter((subtask) => subtask.taskId === task.id && subtask.status !== "done");
+    if (pendingSubtasks.length) {
+      setDialog({ type: "complete", task, targetStatus });
+      return;
+    }
   }
-  if (!result.ok) setDialog({ type: "message", title: "Movimiento bloqueado", message: result.message ?? "No se pudo mover la tarea." });
+  stagePendingMove(setPendingMoves, { taskId: task.id, targetStatus });
+}
+
+function stagePendingMove(setPendingMoves: Dispatch<SetStateAction<PendingMove[]>>, move: PendingMove) {
+  setPendingMoves((current) => [...current.filter((item) => item.taskId !== move.taskId), move]);
+}
+
+async function savePendingMoves(
+  pendingMoves: PendingMove[],
+  sourceTasks: Task[],
+  completeSubtask: ReturnType<typeof useZenflowStore.getState>["completeSubtask"],
+  moveTask: ReturnType<typeof useZenflowStore.getState>["moveTask"],
+  syncWorkspace: ReturnType<typeof useZenflowStore.getState>["syncWorkspace"],
+  setPendingMoves: Dispatch<SetStateAction<PendingMove[]>>,
+  setDialog: Dispatch<SetStateAction<BacklogDialog | null>>,
+  setIsSavingMoves: Dispatch<SetStateAction<boolean>>,
+) {
+  setIsSavingMoves(true);
+  try {
+    for (const pending of pendingMoves) {
+      const task = sourceTasks.find((item) => item.id === pending.taskId);
+      if (!task) continue;
+      if (pending.subtaskId && pending.realHours && pending.realHours > 0) {
+        completeSubtask(pending.subtaskId, pending.realHours);
+      }
+      const result = moveTask(pending.taskId, pending.targetStatus, { forceCompleteSubtasks: pending.forceCompleteSubtasks });
+      if (!result.ok) {
+        setDialog({ type: "message", title: "No se pudo guardar", message: result.message ?? `No se pudo guardar el estado de ${task.title}.` });
+        return;
+      }
+    }
+    await syncWorkspace();
+    setPendingMoves([]);
+    setDialog({ type: "message", title: "Cambios guardados", message: "Los estados del backlog se sincronizaron con Supabase." });
+  } finally {
+    setIsSavingMoves(false);
+  }
+}
+
+function getPreviewProgress(task: Task, targetStatus: TaskStatus) {
+  if (task.type !== "simple") return targetStatus === "done" ? 100 : task.progress;
+  if (targetStatus === "done") return 100;
+  if (targetStatus === "in_progress") return Math.max(task.progress, 50);
+  if (targetStatus === "not_started") return 0;
+  return task.progress;
 }
 
 function BacklogDialogModal({
