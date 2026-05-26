@@ -81,6 +81,7 @@ export function ProtectedRoute({ children }: { children: ReactNode }) {
   const auth = useAuth();
 
   if (auth.isLoading) return <div className="min-h-screen bg-background p-8 text-on-background">Cargando sesion...</div>;
+  if (!auth.isDevelopmentFallback && !auth.session) return <Navigate to="/login" replace />;
 
   return <>{children}</>;
 }

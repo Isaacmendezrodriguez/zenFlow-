@@ -20,6 +20,26 @@ export function LoginPage() {
   }
 
   async function handleSignIn() {
+    const validationMessage = validateForm();
+    if (validationMessage) {
+      setMessage(validationMessage);
+      return;
+    }
+
+    if (!isSupabaseConfigured) {
+      navigate("/dashboard");
+      return;
+    }
+
+    setSubmitting(true);
+    const result = await signIn(email, password);
+    setSubmitting(false);
+
+    if (result.error) {
+      setMessage(result.error);
+      return;
+    }
+
     navigate("/dashboard");
   }
 
@@ -69,7 +89,9 @@ export function LoginPage() {
           <button className="block w-full text-center text-sm font-semibold text-primary hover:underline disabled:opacity-60" onClick={handleSignUp} disabled={isSubmitting}>
             Crear usuario Supabase y configurar organizacion
           </button>
-          <p className="text-center text-xs text-on-surface-variant">Uso personal: puedes entrar sin iniciar sesion.</p>
+          <p className="text-center text-xs text-on-surface-variant">
+            En produccion se requiere sesion Supabase para guardar tus datos.
+          </p>
         </div>
       </Card>
     </main>
