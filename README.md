@@ -39,7 +39,7 @@ npm run build
 Crea `.env.local` usando `.env.example`:
 
 ```txt
-VITE_SUPABASE_URL=
+VITE_SUPABASE_URL=https://wqgdzgpvxjprxcmnshhj.supabase.co
 VITE_SUPABASE_ANON_KEY=
 ```
 
@@ -59,8 +59,8 @@ Configuracion recomendada:
 Antes del despliegue configura en Vercel:
 
 ```txt
-VITE_SUPABASE_URL
-VITE_SUPABASE_ANON_KEY
+VITE_SUPABASE_URL=https://wqgdzgpvxjprxcmnshhj.supabase.co
+VITE_SUPABASE_ANON_KEY=<Supabase Dashboard > Project Settings > API > anon public key>
 ```
 
 ## Supabase
