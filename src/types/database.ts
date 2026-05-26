@@ -43,8 +43,8 @@ export interface Database {
         Relationships: [];
       };
       tasks: {
-        Row: BaseRow & { organization_id: string | null; project_id: string | null; title: string; description: string; type: TaskTypeDb; status: TaskStatusDb; priority: PriorityDb; due_date: string | null; estimated_hours: number; real_hours: number; progress: number; notes: string | null; is_archived: boolean; archived_at: string | null; completed_at: string | null; deleted_at: string | null };
-        Insert: Partial<Pick<BaseRow, "id" | "created_at" | "updated_at">> & { user_id: string; organization_id?: string | null; project_id?: string | null; title: string; description: string; type: TaskTypeDb; status?: TaskStatusDb; priority?: PriorityDb; due_date?: string | null; estimated_hours?: number; real_hours?: number; progress?: number; notes?: string | null; is_archived?: boolean; archived_at?: string | null; completed_at?: string | null; deleted_at?: string | null };
+        Row: BaseRow & { organization_id: string | null; project_id: string | null; title: string; description: string; type: TaskTypeDb; status: TaskStatusDb; status_index: number; priority: PriorityDb; due_date: string | null; estimated_hours: number; real_hours: number; progress: number; notes: string | null; is_archived: boolean; archived_at: string | null; completed_at: string | null; deleted_at: string | null };
+        Insert: Partial<Pick<BaseRow, "id" | "created_at" | "updated_at">> & { user_id: string; organization_id?: string | null; project_id?: string | null; title: string; description: string; type: TaskTypeDb; status?: TaskStatusDb; status_index?: number; priority?: PriorityDb; due_date?: string | null; estimated_hours?: number; real_hours?: number; progress?: number; notes?: string | null; is_archived?: boolean; archived_at?: string | null; completed_at?: string | null; deleted_at?: string | null };
         Update: Partial<Omit<Database["public"]["Tables"]["tasks"]["Row"], "id" | "user_id" | "created_at" | "type" | "project_id">>;
         Relationships: [];
       };

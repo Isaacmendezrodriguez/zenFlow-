@@ -102,6 +102,7 @@ function mapTask(row: TaskRow): Task {
     description: row.description,
     type: row.type,
     status: row.status,
+    statusIndex: toNumber(row.status_index),
     priority: row.priority,
     dueDate: row.due_date ?? undefined,
     estimatedHours: toNumber(row.estimated_hours),

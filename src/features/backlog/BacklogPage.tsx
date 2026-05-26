@@ -10,7 +10,7 @@ import { Modal } from "../../components/ui/Modal";
 import { Select } from "../../components/ui/Select";
 import { ProgressBar } from "../../components/ui/ProgressBar";
 import { Tabs } from "../../components/ui/Tabs";
-import { BASE_STATUSES, OPTIONAL_STATUSES, PRIORITY_LABELS, STATUS_LABELS, TASK_STATUSES } from "../../lib/constants";
+import { BASE_STATUSES, OPTIONAL_STATUSES, PRIORITY_LABELS, STATUS_LABELS, TASK_STATUSES, TASK_STATUS_INDEX } from "../../lib/constants";
 import { cn } from "../../lib/utils";
 import { useZenflowStore } from "../../state/zenflow-store";
 import type { Priority, Subtask, Task, TaskStatus } from "../../types/domain";
@@ -63,7 +63,7 @@ export function BacklogPage() {
   const pendingByTask = new Map(pendingMoves.map((move) => [move.taskId, move]));
   const tasksWithPendingStatus = tasks.map((task) => {
     const pending = pendingByTask.get(task.id);
-    return pending ? { ...task, status: pending.targetStatus, progress: getPreviewProgress(task, pending.targetStatus) } : task;
+    return pending ? { ...task, status: pending.targetStatus, statusIndex: TASK_STATUS_INDEX[pending.targetStatus], progress: getPreviewProgress(task, pending.targetStatus) } : task;
   });
   const filteredTasks = tasksWithPendingStatus.filter((task) => {
     if (filters.organizationId !== "all" && task.organizationId !== filters.organizationId) return false;

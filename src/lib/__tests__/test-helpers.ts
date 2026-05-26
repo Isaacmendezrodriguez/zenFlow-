@@ -9,6 +9,7 @@ export const baseTask: Task = {
   description: "Description",
   type: "simple",
   status: "not_started",
+  statusIndex: 0,
   priority: "medium",
   dueDate: "2026-05-24",
   estimatedHours: 0,

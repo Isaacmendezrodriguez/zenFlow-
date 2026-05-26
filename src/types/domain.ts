@@ -39,6 +39,7 @@ export interface Task {
   description: string;
   type: TaskType;
   status: TaskStatus;
+  statusIndex: number;
   priority: Priority;
   dueDate?: string;
   estimatedHours: number;

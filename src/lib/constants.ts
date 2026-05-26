@@ -19,6 +19,15 @@ export const TASK_TYPES = ["simple", "complex"] as const satisfies readonly Task
 
 export const TASK_STATUSES = ["not_started", "in_progress", "done", "review", "blocked", "waiting"] as const satisfies readonly TaskStatus[];
 
+export const TASK_STATUS_INDEX: Record<TaskStatus, number> = {
+  not_started: 0,
+  in_progress: 1,
+  review: 2,
+  blocked: 3,
+  waiting: 3,
+  done: 4,
+};
+
 export const BASE_STATUSES = ["not_started", "in_progress", "done"] as const satisfies readonly TaskStatus[];
 export const BASE_COLUMNS = BASE_STATUSES;
 

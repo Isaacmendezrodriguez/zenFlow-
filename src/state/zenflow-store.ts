@@ -39,6 +39,7 @@ import {
   getBlockOverlapWarning,
 } from "../lib/business-rules";
 import { calculateComplexTaskProgress, calculateEstimatedHoursFromSubtasks, calculateHourDifference, calculateRealHoursFromSubtasks } from "../lib/calculations";
+import { TASK_STATUS_INDEX } from "../lib/constants";
 import { addDays } from "date-fns";
 import { getSupabaseClient, isSupabaseConfigured } from "../lib/supabase";
 import { loadOrSeedWorkspace } from "../features/workspace/workspace-sync.service";
@@ -309,6 +310,7 @@ export const useZenflowStore = create<ZenflowState>((set, get) => ({
       description,
       type: input.type,
       status: "not_started",
+      statusIndex: TASK_STATUS_INDEX.not_started,
       priority: input.priority ?? "medium",
       dueDate: input.dueDate,
       estimatedHours,
@@ -354,7 +356,7 @@ export const useZenflowStore = create<ZenflowState>((set, get) => ({
       ));
       set((current) => ({
         subtasks: current.subtasks.map((subtask) => completedSubtasks.find((item) => item.id === subtask.id) ?? subtask),
-        tasks: current.tasks.map((item) => (item.id === id ? { ...recalculateTaskFromSubtasks({ ...item, status: "done", progress: 100, completedAt: new Date().toISOString() }, completedSubtasks), status: "done", progress: 100, completedAt: new Date().toISOString() } : item)),
+        tasks: current.tasks.map((item) => (item.id === id ? { ...recalculateTaskFromSubtasks({ ...item, status: "done", statusIndex: TASK_STATUS_INDEX.done, progress: 100, completedAt: new Date().toISOString() }, completedSubtasks), status: "done", statusIndex: TASK_STATUS_INDEX.done, progress: 100, completedAt: new Date().toISOString() } : item)),
         activityLogs: [...current.activityLogs, createLog(id, "card_moved_to_done", options.comment || "Card movida a terminada")],
       }));
       persistComplexTaskDone(id, completedSubtasks, options.comment);
@@ -368,7 +370,7 @@ export const useZenflowStore = create<ZenflowState>((set, get) => ({
         if (item.type === "simple" && targetStatus === "done") progress = 100;
         if (item.type === "simple" && targetStatus === "in_progress") progress = Math.max(item.progress, 50);
         if (item.type === "simple" && targetStatus === "not_started") progress = 0;
-        return { ...item, status: targetStatus, progress, completedAt: targetStatus === "done" ? new Date().toISOString() : item.completedAt };
+        return { ...item, status: targetStatus, statusIndex: TASK_STATUS_INDEX[targetStatus], progress, completedAt: targetStatus === "done" ? new Date().toISOString() : item.completedAt };
       }),
       activityLogs: [...current.activityLogs, createLog(id, "card_status_changed", `Card movida a ${targetStatus}`)],
     }));
@@ -507,7 +509,7 @@ export const useZenflowStore = create<ZenflowState>((set, get) => ({
     set((state) => ({
       calendarBlocks: [...state.calendarBlocks, block],
       tasks: block.taskId
-        ? state.tasks.map((task) => (task.id === block.taskId && task.status === "not_started" ? { ...task, status: "in_progress", progress: Math.max(task.progress, task.type === "simple" ? 50 : task.progress) } : task))
+        ? state.tasks.map((task) => (task.id === block.taskId && task.status === "not_started" ? { ...task, status: "in_progress", statusIndex: TASK_STATUS_INDEX.in_progress, progress: Math.max(task.progress, task.type === "simple" ? 50 : task.progress) } : task))
         : state.tasks,
     }));
     persistCalendarBlock(block);
@@ -547,7 +549,7 @@ export const useZenflowStore = create<ZenflowState>((set, get) => ({
                 completedAt: progress >= 100 ? new Date().toISOString() : item.completedAt,
               };
             });
-            nextTasks = current.tasks.map((task) => (task.id === linkedTask.id ? recalculateTaskFromSubtasks({ ...task, status: task.status === "not_started" ? "in_progress" : task.status }, nextSubtasks.filter((item) => item.taskId === linkedTask.id)) : task));
+            nextTasks = current.tasks.map((task) => (task.id === linkedTask.id ? recalculateTaskFromSubtasks({ ...task, status: task.status === "not_started" ? "in_progress" : task.status, statusIndex: task.status === "not_started" ? TASK_STATUS_INDEX.in_progress : task.statusIndex }, nextSubtasks.filter((item) => item.taskId === linkedTask.id)) : task));
           }
         } else {
         nextTasks = current.tasks.map((task) => {
@@ -560,6 +562,7 @@ export const useZenflowStore = create<ZenflowState>((set, get) => ({
               realHours,
               progress: reachedEstimate ? 100 : Math.max(task.progress, 50),
               status: reachedEstimate ? "done" : task.status === "not_started" ? "in_progress" : task.status,
+              statusIndex: reachedEstimate ? TASK_STATUS_INDEX.done : task.status === "not_started" ? TASK_STATUS_INDEX.in_progress : task.statusIndex,
               completedAt: reachedEstimate ? new Date().toISOString() : task.completedAt,
             };
           }
@@ -699,6 +702,7 @@ function persistTaskCreate(task: Task, subtasks: Subtask[]) {
       description: task.description,
       type: task.type,
       status: task.status,
+      status_index: task.statusIndex,
       priority: task.priority,
       due_date: task.dueDate ?? null,
       estimated_hours: task.estimatedHours,
@@ -988,6 +992,7 @@ function mapTaskUpdate(input: Partial<Task>) {
     title: input.title,
     description: input.description,
     status: input.status,
+    status_index: input.status ? TASK_STATUS_INDEX[input.status] : input.statusIndex,
     priority: input.priority,
     due_date: input.dueDate,
     estimated_hours: input.estimatedHours,
@@ -1046,6 +1051,7 @@ function recalculateTaskFromSubtasks(task: Task, taskSubtasks: Subtask[]): Task 
     realHours,
     progress,
     status: progress >= 100 ? "done" : progress > 0 && task.status === "not_started" ? "in_progress" : task.status,
+    statusIndex: TASK_STATUS_INDEX[progress >= 100 ? "done" : progress > 0 && task.status === "not_started" ? "in_progress" : task.status],
     completedAt: progress >= 100 ? task.completedAt ?? new Date().toISOString() : task.completedAt,
   };
 }
