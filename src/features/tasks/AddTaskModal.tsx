@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Briefcase, FileText, Link as LinkIcon, ListChecks, Plus, Trash2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Badge } from "../../components/ui/Badge";
 import { Button } from "../../components/ui/Button";
@@ -13,6 +13,7 @@ import { isSupabaseConfigured } from "../../lib/supabase";
 import { addTaskSchema, type AddTaskFormValues } from "../../lib/validators";
 import { useZenflowStore } from "../../state/zenflow-store";
 import type { Priority } from "../../types/domain";
+import { createProject as createRemoteProject } from "../projects/services/projects.service";
 import { loadOrSeedWorkspace } from "../workspace/workspace-sync.service";
 import { createTaskWithSubtasks } from "./services/tasks.service";
 
@@ -41,11 +42,13 @@ export function AddTaskModal({ isOpen, onClose }: AddTaskModalProps) {
   const [taskType, setTaskType] = useState<"simple" | "complex">("simple");
   const [error, setError] = useState<string | null>(null);
   const [draftSubtasks, setDraftSubtasks] = useState<DraftSubtask[]>([emptyDraftSubtask()]);
+  const [quickProjectName, setQuickProjectName] = useState("General");
   const storeOrganizations = useZenflowStore((state) => state.organizations);
   const storeProjects = useZenflowStore((state) => state.projects);
   const createTask = useZenflowStore((state) => state.createTask);
+  const createProject = useZenflowStore((state) => state.createProject);
   const hydrateWorkspace = useZenflowStore((state) => state.hydrateWorkspace);
-  const { register, handleSubmit, watch } = useForm<AddTaskFormValues>({
+  const { register, handleSubmit, watch, setValue } = useForm<AddTaskFormValues>({
     resolver: zodResolver(addTaskSchema),
     defaultValues: {
       title: "",
@@ -55,17 +58,33 @@ export function AddTaskModal({ isOpen, onClose }: AddTaskModalProps) {
     },
   });
   const selectedOrganization = watch("organizationId");
-  const scopedProjects = storeProjects.filter((project) => !selectedOrganization || project.organizationId === selectedOrganization);
+  const selectedProject = watch("projectId");
+  const scopedProjects = useMemo(
+    () => storeProjects.filter((project) => !selectedOrganization || project.organizationId === selectedOrganization),
+    [selectedOrganization, storeProjects],
+  );
+  const firstScopedProjectId = scopedProjects[0]?.id;
 
   useEffect(() => {
     if (!isOpen) return;
     setError(null);
     setDraftSubtasks([emptyDraftSubtask()]);
+    setQuickProjectName("General");
   }, [isOpen]);
+
+  useEffect(() => {
+    if (!selectedOrganization) {
+      setValue("projectId", "");
+      return;
+    }
+    const projectStillBelongsToOrganization = scopedProjects.some((project) => project.id === selectedProject);
+    if (selectedProject && projectStillBelongsToOrganization) return;
+    setValue("projectId", firstScopedProjectId ?? "");
+  }, [firstScopedProjectId, scopedProjects, selectedOrganization, selectedProject, setValue]);
 
   async function submitMockTask(values: AddTaskFormValues) {
     const organizationId = values.organizationId === CREATE_ORGANIZATION_OPTION ? "" : values.organizationId;
-    const projectId = values.projectId === CREATE_PROJECT_OPTION ? "" : values.projectId;
+    let projectId = values.projectId === CREATE_PROJECT_OPTION ? "" : values.projectId;
     const subtaskInput = taskType === "complex"
       ? draftSubtasks.map((subtask) => ({
         title: subtask.title.trim(),
@@ -76,13 +95,41 @@ export function AddTaskModal({ isOpen, onClose }: AddTaskModalProps) {
       : undefined;
 
     if (taskType === "complex") {
-      if (!organizationId || !projectId || !values.dueDate) {
+      if (!organizationId || !values.dueDate) {
         setError("Una tarea compleja requiere organizacion, proyecto y fecha.");
         return;
       }
       if (!subtaskInput?.length || subtaskInput.some((subtask) => !subtask.title || subtask.estimatedHours <= 0)) {
         setError("Agrega al menos una subtarea con titulo y horas estimadas mayores a 0.");
         return;
+      }
+      if (!projectId && firstScopedProjectId) {
+        projectId = firstScopedProjectId;
+      }
+    }
+
+    if (taskType === "complex" && organizationId && (!projectId || values.projectId === CREATE_PROJECT_OPTION)) {
+      const name = quickProjectName.trim() || "General";
+      if (isSupabaseConfigured) {
+        const createdProject = await createRemoteProject({
+          organizationId,
+          name,
+          description: "Proyecto creado desde una card compleja.",
+          color: "#10a37f",
+        });
+        if (createdProject.error || !createdProject.data) {
+          setError(createdProject.error ?? "No se pudo crear el proyecto para esta tarea.");
+          return;
+        }
+        projectId = createdProject.data.id;
+      } else {
+        projectId = createProject({
+          organizationId,
+          name,
+          description: "Proyecto creado desde una card compleja.",
+          color: "#10a37f",
+          tags: [],
+        }).id;
       }
     }
 
@@ -200,6 +247,13 @@ export function AddTaskModal({ isOpen, onClose }: AddTaskModalProps) {
               <option value={CREATE_PROJECT_OPTION}>+ Crear nuevo proyecto</option>
             </Select>
           </div>
+          {selectedOrganization && scopedProjects.length === 0 ? (
+            <div className="rounded-lg border border-outline-variant bg-surface-container-lowest p-3">
+              <p className="text-sm font-medium text-on-surface">Esta organizacion aun no tiene proyectos.</p>
+              <p className="mt-1 text-xs text-on-surface-variant">Al crear una card compleja se generara este proyecto automaticamente.</p>
+              <Input className="mt-3" value={quickProjectName} onChange={(event) => setQuickProjectName(event.target.value)} placeholder="Nombre del proyecto" />
+            </div>
+          ) : null}
           <div className="flex flex-wrap gap-2 rounded-lg border border-outline-variant bg-surface p-2">
             {["UI/UX", "MVP"].map((tag) => (
               <Badge key={tag} tone="primary">

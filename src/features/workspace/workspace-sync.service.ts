@@ -104,9 +104,9 @@ function mapTask(row: TaskRow): Task {
     status: row.status,
     priority: row.priority,
     dueDate: row.due_date ?? undefined,
-    estimatedHours: row.estimated_hours,
-    realHours: row.real_hours,
-    progress: row.progress,
+    estimatedHours: toNumber(row.estimated_hours),
+    realHours: toNumber(row.real_hours),
+    progress: toNumber(row.progress),
     notes: row.notes ?? undefined,
     tags: [],
     isArchived: row.is_archived,
@@ -118,7 +118,7 @@ function mapTask(row: TaskRow): Task {
 }
 
 function mapSubtask(row: SubtaskRow): Subtask {
-  return { id: row.id, userId: row.user_id, taskId: row.task_id, title: row.title, description: row.description ?? undefined, priority: row.priority, status: row.status, estimatedHours: row.estimated_hours, realHours: row.real_hours, progress: row.progress, completedAt: row.completed_at ?? undefined };
+  return { id: row.id, userId: row.user_id, taskId: row.task_id, title: row.title, description: row.description ?? undefined, priority: row.priority, status: row.status, estimatedHours: toNumber(row.estimated_hours), realHours: toNumber(row.real_hours), progress: toNumber(row.progress), completedAt: row.completed_at ?? undefined };
 }
 
 function mapTaskLink(row: TaskLinkRow): TaskLink {
@@ -128,7 +128,7 @@ function mapTaskLink(row: TaskLinkRow): TaskLink {
 function mapCalendarBlock(row: CalendarBlockRow): CalendarBlock {
   const status = ["scheduled", "in_progress", "completed", "cancelled"].includes(row.status) ? row.status as CalendarBlock["status"] : "scheduled";
   const blockType = ["free", "meeting", "personal", "simple_task", "complex_task", "subtask"].includes(row.block_type) ? row.block_type as CalendarBlock["blockType"] : "free";
-  return { id: row.id, userId: row.user_id, organizationId: row.organization_id ?? undefined, projectId: row.project_id ?? undefined, taskId: row.task_id ?? undefined, subtaskId: row.subtask_id ?? undefined, title: row.title, description: row.description ?? undefined, blockType, status, startAt: row.start_at, endAt: row.end_at, durationHours: row.duration_hours, completedAt: row.completed_at ?? undefined, realHoursApplied: row.real_hours_applied, color: row.color, deletedAt: row.deleted_at ?? undefined };
+  return { id: row.id, userId: row.user_id, organizationId: row.organization_id ?? undefined, projectId: row.project_id ?? undefined, taskId: row.task_id ?? undefined, subtaskId: row.subtask_id ?? undefined, title: row.title, description: row.description ?? undefined, blockType, status, startAt: row.start_at, endAt: row.end_at, durationHours: toNumber(row.duration_hours), completedAt: row.completed_at ?? undefined, realHoursApplied: toNumber(row.real_hours_applied), color: row.color, deletedAt: row.deleted_at ?? undefined };
 }
 
 function mapNotification(row: NotificationRow): Notification {
@@ -151,9 +151,14 @@ function mapUserSettings(row: UserSettingsRow): UserSettings {
     enableBlockedColumn: row.enable_blocked_column,
     enableWaitingColumn: row.enable_waiting_column,
     enableInternalNotifications: row.enable_internal_notifications,
-    notifyBeforeBlockMinutes: row.notify_before_block_minutes,
+    notifyBeforeBlockMinutes: toNumber(row.notify_before_block_minutes),
     dailySummary: row.daily_summary,
-    timerBreakMinutes: row.timer_break_minutes,
+    timerBreakMinutes: toNumber(row.timer_break_minutes),
     backlogView: row.backlog_view,
   };
+}
+
+function toNumber(value: string | number | null | undefined): number {
+  const parsed = Number(value ?? 0);
+  return Number.isFinite(parsed) ? parsed : 0;
 }
