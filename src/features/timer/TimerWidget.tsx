@@ -1,38 +1,81 @@
 import { ChevronLeft, Coffee, Maximize2, MoreHorizontal, Pause, Play, Square, Timer, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useZenflowStore } from "../../state/zenflow-store";
-import { Input } from "../../components/ui/Input";
+import { cn } from "../../lib/utils";
+
+function formatTimer(seconds: number) {
+  const safeSeconds = Math.max(0, seconds);
+  const minutes = Math.floor(safeSeconds / 60);
+  const remainingSeconds = safeSeconds % 60;
+  return `${minutes}:${String(remainingSeconds).padStart(2, "0")}`;
+}
 
 export function TimerWidget() {
   const [isExpanded, setIsExpanded] = useState(false);
   const [selectedBlockId, setSelectedBlockId] = useState("");
-  const [timerMinutes, setTimerMinutes] = useState(60);
+  const [timerMinutes, setTimerMinutes] = useState(50);
   const calendarBlocks = useZenflowStore((state) => state.calendarBlocks);
+  const userSettings = useZenflowStore((state) => state.userSettings);
   const activeTimer = useZenflowStore((state) => state.activeTimer);
   const startTimer = useZenflowStore((state) => state.startTimer);
   const stopTimer = useZenflowStore((state) => state.stopTimer);
+  const toggleTimer = useZenflowStore((state) => state.toggleTimer);
+  const tickTimer = useZenflowStore((state) => state.tickTimer);
+
+  useEffect(() => {
+    if (!activeTimer?.isRunning) return undefined;
+    const interval = window.setInterval(() => tickTimer(), 1000);
+    return () => window.clearInterval(interval);
+  }, [activeTimer?.isRunning, tickTimer]);
+
+  const availableBlocks = useMemo(
+    () => calendarBlocks.filter((block) => block.status !== "completed" && block.status !== "cancelled"),
+    [calendarBlocks],
+  );
   const activeBlock = calendarBlocks.find((block) => block.id === activeTimer?.blockId) ?? calendarBlocks.find((block) => block.status === "in_progress");
-  const availableBlocks = calendarBlocks.filter((block) => block.status !== "completed" && block.status !== "cancelled");
-  const timerTitle = activeBlock?.title ?? "Timer ZenFlow";
+  const selectedBlock = calendarBlocks.find((block) => block.id === selectedBlockId);
+  const timerTitle = activeBlock?.title ?? selectedBlock?.title ?? "Timer ZenFlow";
+  const remainingSeconds = activeTimer ? Math.max(activeTimer.durationSeconds - activeTimer.elapsedSeconds, 0) : timerMinutes * 60;
+  const progress = activeTimer ? Math.min((activeTimer.elapsedSeconds / activeTimer.durationSeconds) * 100, 100) : 0;
+  const durationLabel = activeTimer ? `${Math.round(activeTimer.durationSeconds / 60)} min` : `${timerMinutes} min`;
 
   function beginTimer() {
-    const blockId = selectedBlockId || availableBlocks[0]?.id;
-    if (blockId) startTimer(blockId);
+    const blockId = selectedBlockId || activeBlock?.id || availableBlocks[0]?.id;
+    if (blockId) startTimer(blockId, timerMinutes);
+  }
+
+  function handlePrimaryAction() {
+    if (activeTimer) {
+      if (remainingSeconds <= 0) {
+        stopTimer();
+        return;
+      }
+      toggleTimer();
+      return;
+    }
+    beginTimer();
+  }
+
+  function updateTimerMinutes(value: string) {
+    const nextValue = Number(value);
+    if (Number.isFinite(nextValue)) {
+      setTimerMinutes(Math.min(Math.max(nextValue, 5), 240));
+    }
   }
 
   if (!isExpanded) {
     return (
       <button
-        className="fixed bottom-4 right-0 z-30 flex h-11 max-w-[12rem] items-center gap-2 rounded-l-xl border border-r-0 border-outline-variant bg-surface-container-lowest px-3 text-on-surface shadow-[0_10px_30px_rgba(0,0,0,0.18)] transition hover:-translate-x-1 dark:border-white/10 dark:bg-[#111318] dark:text-white"
+        className="fixed bottom-5 right-0 z-40 flex h-11 max-w-[12.5rem] items-center gap-2 rounded-l-xl border border-r-0 border-outline-variant bg-surface-container-lowest px-3 text-on-surface shadow-[0_10px_30px_rgba(0,0,0,0.18)] transition hover:-translate-x-1 dark:border-white/10 dark:bg-[#1f2229] dark:text-white"
         onClick={() => setIsExpanded(true)}
-        aria-label="Expandir timer activo"
+        aria-label="Expandir temporizador"
       >
-        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary-container text-primary dark:bg-[#1b2421] dark:text-[#7bd88f]">
+        <span className={cn("flex h-7 w-7 shrink-0 items-center justify-center rounded-full", activeTimer?.isRunning ? "bg-[#dff9ed] text-[#0d8a5f] dark:bg-[#123323] dark:text-[#54d990]" : "bg-primary-container text-primary")}>
           <Timer className="h-4 w-4" />
         </span>
         <span className="min-w-0 text-left leading-none">
-          <span className="block max-w-20 truncate text-[10px] font-semibold text-primary dark:text-[#72c58a]">{timerTitle}</span>
-          <span className="block font-mono text-xs font-semibold">{activeTimer ? "00:25" : `${timerMinutes}:00`}</span>
+          <span className="block max-w-24 truncate text-[10px] font-semibold text-primary dark:text-[#72c58a]">{timerTitle}</span>
+          <span className="block font-mono text-xs font-semibold">{formatTimer(remainingSeconds)}</span>
         </span>
         <ChevronLeft className="h-4 w-4 shrink-0 text-on-surface-variant dark:text-white/70" />
       </button>
@@ -40,52 +83,71 @@ export function TimerWidget() {
   }
 
   return (
-    <div className="fixed bottom-4 right-4 z-30 w-[calc(100vw-2rem)] max-w-[360px] rounded-xl border border-white/10 bg-[#1f2229] p-4 text-white shadow-[0_20px_60px_rgba(0,0,0,0.45)]">
+    <div className="fixed bottom-5 right-5 z-40 w-[calc(100vw-2.5rem)] max-w-[380px] rounded-xl border border-white/10 bg-[#1f2229] p-4 text-white shadow-[0_20px_60px_rgba(0,0,0,0.45)]">
       <div className="mb-3 flex items-center justify-between">
         <button
           className="flex h-8 w-8 items-center justify-center rounded-md text-white/80 transition hover:bg-white/10"
           onClick={() => setIsExpanded(false)}
-          aria-label="Minimizar timer"
+          aria-label="Guardar temporizador en pestaña"
         >
           <Maximize2 className="h-4 w-4 rotate-180" />
         </button>
         <div className="min-w-0 px-3 text-center">
-          <p className="truncate text-sm font-medium text-white">Periodo de concentracion {activeTimer ? "(1 de 2)" : ""}</p>
+          <p className="truncate text-sm font-semibold text-white">Periodo de concentracion</p>
+          <p className="text-[11px] text-white/55">{durationLabel} · descanso de {userSettings.timerBreakMinutes} min</p>
         </div>
-        <button className="flex h-8 w-8 items-center justify-center rounded-md text-white/80 transition hover:bg-white/10" onClick={() => setIsExpanded(false)} aria-label="Cerrar timer">
+        <button className="flex h-8 w-8 items-center justify-center rounded-md text-white/80 transition hover:bg-white/10" onClick={() => setIsExpanded(false)} aria-label="Cerrar temporizador">
           <X className="h-4 w-4" />
         </button>
       </div>
-      <div className="grid gap-2 sm:grid-cols-[1fr_5rem]">
+
+      <div className="grid grid-cols-[1fr_5.5rem] gap-2">
         <select
-          value={selectedBlockId || availableBlocks[0]?.id || ""}
+          value={selectedBlockId || activeTimer?.blockId || activeBlock?.id || availableBlocks[0]?.id || ""}
           onChange={(event) => setSelectedBlockId(event.target.value)}
-          className="h-10 w-full rounded-lg border border-white/10 bg-[#2a2d35] px-3 text-sm text-white outline-none transition focus:border-[#4cc9f0] focus:ring-2 focus:ring-[#4cc9f0]/20"
+          disabled={Boolean(activeTimer)}
+          className="h-11 min-w-0 rounded-lg border border-white/10 bg-[#2a2d35] px-3 text-sm font-medium text-white outline-none transition focus:border-[#4cc9f0] focus:ring-2 focus:ring-[#4cc9f0]/20 disabled:cursor-not-allowed disabled:opacity-80"
         >
           <option value="" disabled>Selecciona bloque</option>
           {availableBlocks.map((block) => <option key={block.id} value={block.id}>{block.title}</option>)}
         </select>
-        <Input className="h-9 border-white/10 bg-[#2a2d35] text-white" type="number" min={5} step={5} value={timerMinutes} onChange={(event) => setTimerMinutes(Number(event.target.value))} />
+        <input
+          className="h-11 rounded-lg border border-white/10 bg-white px-3 text-center text-sm font-semibold text-[#101318] outline-none transition focus:border-[#4cc9f0] focus:ring-2 focus:ring-[#4cc9f0]/20 disabled:cursor-not-allowed disabled:opacity-80"
+          type="number"
+          min={5}
+          max={240}
+          step={5}
+          value={timerMinutes}
+          disabled={Boolean(activeTimer)}
+          onChange={(event) => updateTimerMinutes(event.target.value)}
+          aria-label="Duracion del temporizador en minutos"
+        />
       </div>
-      <div className="mx-auto mt-5 flex h-28 w-28 items-center justify-center rounded-full bg-[#2b2e36] shadow-inner">
-        <div className="relative flex h-24 w-24 items-center justify-center rounded-full border-[10px] border-[#373b44]">
-          <div className="absolute inset-2 rounded-full border border-dashed border-white/10" />
-          <Coffee className="h-8 w-8 text-[#4cc9f0]" />
+
+      <div className="mx-auto mt-6 flex h-32 w-32 items-center justify-center rounded-full bg-[#2b2e36] shadow-inner">
+        <div
+          className="relative flex h-28 w-28 items-center justify-center rounded-full transition"
+          style={{ background: `conic-gradient(#4cc9f0 ${progress * 3.6}deg, #373b44 0deg)` }}
+        >
+          <div className="absolute inset-[10px] rounded-full bg-[#242832]" />
+          <div className="absolute inset-5 rounded-full border border-dashed border-white/10" />
+          <Coffee className="relative h-8 w-8 text-[#4cc9f0]" />
         </div>
       </div>
-      <div className="mt-4 text-center font-mono text-3xl font-semibold leading-none text-white">{activeTimer ? "45:22" : `${timerMinutes}:00`}</div>
-      <div className="mt-4 flex items-center justify-center gap-3">
-        <button className="flex h-12 w-12 items-center justify-center rounded-full bg-[#4cc9f0] text-[#101318] shadow-lg transition hover:scale-105" aria-label="Iniciar timer" onClick={beginTimer}>
-          {activeTimer ? <Pause className="h-5 w-5 fill-current" /> : <Play className="h-5 w-5 fill-current" />}
+
+      <div className="mt-4 text-center font-mono text-4xl font-semibold leading-none text-white">{formatTimer(remainingSeconds)}</div>
+      <div className="mt-5 flex items-center justify-center gap-3">
+        <button className="flex h-14 w-14 items-center justify-center rounded-full bg-[#4cc9f0] text-[#101318] shadow-lg transition hover:scale-105" aria-label={activeTimer?.isRunning ? "Pausar temporizador" : "Iniciar temporizador"} onClick={handlePrimaryAction}>
+          {activeTimer?.isRunning ? <Pause className="h-6 w-6 fill-current" /> : <Play className="h-6 w-6 fill-current" />}
         </button>
-        <button className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/15" aria-label="Mas opciones">
+        <button className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/15" aria-label="Mas opciones">
           <MoreHorizontal className="h-5 w-5" />
         </button>
-        <button className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/15" aria-label="Finalizar timer" onClick={stopTimer}>
+        <button className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/15" aria-label="Finalizar temporizador" onClick={stopTimer}>
           <Square className="h-4 w-4" />
         </button>
       </div>
-      <p className="mt-5 text-center text-sm text-white/80">A continuacion: <span className="font-semibold text-white">Descanso de 5 minutos</span></p>
+      <p className="mt-5 text-center text-sm text-white/80">A continuacion: <span className="font-semibold text-white">Descanso de {userSettings.timerBreakMinutes} minutos</span></p>
     </div>
   );
 }

@@ -103,7 +103,7 @@ interface ZenflowState {
   userSettings: UserSettings;
   filters: ZenflowFilters;
   trashItems: TrashItem[];
-  activeTimer?: { blockId: ID; isRunning: boolean; elapsedSeconds: number };
+  activeTimer?: { blockId: ID; isRunning: boolean; elapsedSeconds: number; durationSeconds: number };
   toast?: string;
   setToast: (message?: string) => void;
   updateFilters: (input: Partial<ZenflowFilters>) => void;
@@ -128,7 +128,9 @@ interface ZenflowState {
   createCalendarBlock: (input: BlockInput) => { ok: boolean; block?: CalendarBlock; message?: string; warning?: string };
   completeCalendarBlock: (id: ID, realHours?: number) => { ok: boolean; message?: string };
   deleteCalendarBlock: (id: ID) => { ok: boolean; message?: string };
-  startTimer: (blockId: ID) => void;
+  startTimer: (blockId: ID, durationMinutes?: number) => void;
+  toggleTimer: () => void;
+  tickTimer: () => void;
   stopTimer: () => void;
   restoreTrashItem: (id: ID) => { ok: boolean; message?: string };
   permanentlyDeleteTrashItem: (id: ID) => void;
@@ -154,7 +156,7 @@ export const useZenflowStore = create<ZenflowState>((set, get) => ({
     searchQuery: "",
   },
   trashItems: initialTrashItems,
-  activeTimer: initialCalendarBlocks.find((block) => block.status === "in_progress") ? { blockId: initialCalendarBlocks.find((block) => block.status === "in_progress")!.id, isRunning: true, elapsedSeconds: 45 * 60 + 22 } : undefined,
+  activeTimer: undefined,
   toast: undefined,
 
   setToast: (message) => set({ toast: message }),
@@ -537,7 +539,13 @@ export const useZenflowStore = create<ZenflowState>((set, get) => ({
     return { ok: true, message: block.status === "completed" && (block.taskId || block.subtaskId) ? "Las horas reales del bloque completado fueron descontadas si aplicaba." : undefined };
   },
 
-  startTimer: (blockId) => set({ activeTimer: { blockId, isRunning: true, elapsedSeconds: 0 } }),
+  startTimer: (blockId, durationMinutes = 50) => set({ activeTimer: { blockId, isRunning: true, elapsedSeconds: 0, durationSeconds: Math.max(durationMinutes, 1) * 60 } }),
+  toggleTimer: () => set((state) => (state.activeTimer ? { activeTimer: { ...state.activeTimer, isRunning: !state.activeTimer.isRunning } } : state)),
+  tickTimer: () => set((state) => {
+    if (!state.activeTimer?.isRunning) return state;
+    const nextElapsed = Math.min(state.activeTimer.elapsedSeconds + 1, state.activeTimer.durationSeconds);
+    return { activeTimer: { ...state.activeTimer, elapsedSeconds: nextElapsed, isRunning: nextElapsed < state.activeTimer.durationSeconds } };
+  }),
   stopTimer: () => set({ activeTimer: undefined }),
 
   restoreTrashItem: (id) => {
