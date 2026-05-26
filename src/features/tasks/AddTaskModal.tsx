@@ -9,9 +9,12 @@ import { Modal } from "../../components/ui/Modal";
 import { Select } from "../../components/ui/Select";
 import { Textarea } from "../../components/ui/Textarea";
 import { CREATE_ORGANIZATION_OPTION, CREATE_PROJECT_OPTION } from "../../lib/constants";
+import { isSupabaseConfigured } from "../../lib/supabase";
 import { addTaskSchema, type AddTaskFormValues } from "../../lib/validators";
-import { organizations, projects, subtasks } from "../../mocks/mock-data";
+import { subtasks } from "../../mocks/mock-data";
 import { useZenflowStore } from "../../state/zenflow-store";
+import { loadOrSeedWorkspace } from "../workspace/workspace-sync.service";
+import { createTaskWithSubtasks } from "./services/tasks.service";
 
 interface AddTaskModalProps {
   isOpen: boolean;
@@ -24,6 +27,7 @@ export function AddTaskModal({ isOpen, onClose }: AddTaskModalProps) {
   const storeOrganizations = useZenflowStore((state) => state.organizations);
   const storeProjects = useZenflowStore((state) => state.projects);
   const createTask = useZenflowStore((state) => state.createTask);
+  const hydrateWorkspace = useZenflowStore((state) => state.hydrateWorkspace);
   const { register, handleSubmit, watch } = useForm<AddTaskFormValues>({
     resolver: zodResolver(addTaskSchema),
     defaultValues: {
@@ -36,7 +40,31 @@ export function AddTaskModal({ isOpen, onClose }: AddTaskModalProps) {
   const selectedOrganization = watch("organizationId");
   const scopedProjects = storeProjects.filter((project) => !selectedOrganization || project.organizationId === selectedOrganization);
 
-  function submitMockTask(values: AddTaskFormValues) {
+  async function submitMockTask(values: AddTaskFormValues) {
+    const subtaskInput = taskType === "complex" ? subtasks.slice(0, 2).map((subtask) => ({ title: subtask.title, description: subtask.description, estimatedHours: subtask.estimatedHours, priority: subtask.priority })) : undefined;
+
+    if (isSupabaseConfigured) {
+      const result = await createTaskWithSubtasks({
+        title: values.title,
+        description: values.description,
+        type: taskType,
+        organizationId: values.organizationId || undefined,
+        projectId: values.projectId || undefined,
+        dueDate: values.dueDate || undefined,
+        priority: values.priority,
+        subtasks: subtaskInput,
+      });
+      if (result.error) {
+        setError(result.error);
+        return;
+      }
+      const snapshot = await loadOrSeedWorkspace();
+      if (snapshot) hydrateWorkspace(snapshot);
+      setError(null);
+      onClose();
+      return;
+    }
+
     const result = createTask({
       title: values.title,
       description: values.description,
@@ -45,7 +73,7 @@ export function AddTaskModal({ isOpen, onClose }: AddTaskModalProps) {
       projectId: values.projectId || undefined,
       dueDate: values.dueDate || undefined,
       priority: values.priority,
-      subtasks: taskType === "complex" ? subtasks.slice(0, 2).map((subtask) => ({ title: subtask.title, description: subtask.description, estimatedHours: subtask.estimatedHours, priority: subtask.priority })) : undefined,
+      subtasks: subtaskInput,
     });
     if (!result.ok) {
       setError(result.message ?? "No se pudo crear la tarea.");

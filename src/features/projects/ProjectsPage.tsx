@@ -12,6 +12,7 @@ import { isSupabaseConfigured } from "../../lib/supabase";
 import { useZenflowStore } from "../../state/zenflow-store";
 import type { Project } from "../../types/domain";
 import { createProject as createRemoteProject, deleteProject as deleteRemoteProject, listProjects, moveProjectToOrganization as moveRemoteProjectToOrganization, updateProject as updateRemoteProject } from "./services/projects.service";
+import { loadOrSeedWorkspace } from "../workspace/workspace-sync.service";
 
 type ProjectView = Project | { id: string; organizationId?: string; organization_id?: string; name: string; description?: string | null; color: string; tags?: string[] };
 
@@ -24,13 +25,13 @@ export function ProjectsPage() {
   const updateProject = useZenflowStore((state) => state.updateProject);
   const moveProjectOrganization = useZenflowStore((state) => state.moveProjectOrganization);
   const deleteProject = useZenflowStore((state) => state.deleteProject);
-  const [remoteProjects, setRemoteProjects] = useState<ProjectView[] | null>(null);
+  const hydrateWorkspace = useZenflowStore((state) => state.hydrateWorkspace);
   const [editingProject, setEditingProject] = useState<ProjectView | null>(null);
   const [movingProject, setMovingProject] = useState<ProjectView | null>(null);
   const [isCreating, setIsCreating] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const searchQuery = filters.searchQuery.trim().toLowerCase();
-  const sourceProjects = remoteProjects ?? projects;
+  const sourceProjects = projects;
   const visibleProjects = sourceProjects.filter((project) => {
     if (filters.organizationId !== "all" && getProjectOrganizationId(project) !== filters.organizationId) return false;
     if (filters.projectId !== "all" && project.id !== filters.projectId) return false;
@@ -40,18 +41,26 @@ export function ProjectsPage() {
 
   useEffect(() => {
     if (!isSupabaseConfigured) return;
-    listProjects().then((result) => {
-      if (result.data) setRemoteProjects(result.data.map((project) => ({ ...project, organizationId: project.organization_id, tags: [] })));
+    listProjects().then(async (result) => {
+      if (result.data?.length) {
+        const snapshot = await loadOrSeedWorkspace();
+        if (snapshot) hydrateWorkspace(snapshot);
+      }
       if (result.error) setMessage(result.error);
     });
-  }, []);
+  }, [hydrateWorkspace]);
+
+  async function refreshWorkspace() {
+    const snapshot = await loadOrSeedWorkspace();
+    if (snapshot) hydrateWorkspace(snapshot);
+  }
 
   async function handleDelete(project: ProjectView) {
     if (!window.confirm(`Eliminar "${project.name}"?`)) return;
     if (isSupabaseConfigured) {
       const result = await deleteRemoteProject(project.id);
       if (result.error) setMessage(result.error);
-      else setRemoteProjects((current) => current?.filter((item) => item.id !== project.id) ?? null);
+      else await refreshWorkspace();
       return;
     }
     const result = deleteProject(project.id);
@@ -124,7 +133,7 @@ export function ProjectsPage() {
               ? await updateRemoteProject(editingProject.id, { name: input.name, description: input.description, color: input.color })
               : await createRemoteProject({ organizationId: input.organizationId, name: input.name, description: input.description, color: input.color });
             if (result.error) setMessage(result.error);
-            else if (result.data) setRemoteProjects((current) => editingProject ? (current ?? []).map((item) => item.id === result.data.id ? { ...result.data, organizationId: result.data.organization_id, tags: [] } : item) : [{ ...result.data, organizationId: result.data.organization_id, tags: [] }, ...(current ?? [])]);
+            else await refreshWorkspace();
           } else if (editingProject) updateProject(editingProject.id, input);
           else createProject(input);
           setIsCreating(false);
@@ -140,7 +149,7 @@ export function ProjectsPage() {
             if (isSupabaseConfigured) {
               const result = await moveRemoteProjectToOrganization(movingProject.id, organizationId);
               if (result.error) setMessage(result.error);
-              else if (result.data) setRemoteProjects((current) => (current ?? []).map((item) => item.id === result.data.id ? { ...result.data, organizationId: result.data.organization_id, tags: [] } : item));
+              else await refreshWorkspace();
             } else {
               moveProjectOrganization(movingProject.id, organizationId);
             }

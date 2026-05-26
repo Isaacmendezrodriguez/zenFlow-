@@ -2,6 +2,8 @@ import { createContext, useContext, useEffect, useMemo, useState, type ReactNode
 import type { Session, User } from "@supabase/supabase-js";
 import { Navigate } from "react-router-dom";
 import { isSupabaseConfigured, supabase } from "../../lib/supabase";
+import { useZenflowStore } from "../../state/zenflow-store";
+import { loadOrSeedWorkspace } from "../workspace/workspace-sync.service";
 
 interface AuthContextValue {
   session: Session | null;
@@ -16,6 +18,7 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setLoading] = useState(isSupabaseConfigured);
+  const hydrateWorkspace = useZenflowStore((state) => state.hydrateWorkspace);
 
   useEffect(() => {
     if (!isSupabaseConfigured || !supabase) {
@@ -35,6 +38,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     return () => listener.subscription.unsubscribe();
   }, []);
+
+  useEffect(() => {
+    if (!isSupabaseConfigured || !session) return;
+    let isActive = true;
+
+    loadOrSeedWorkspace()
+      .then((snapshot) => {
+        if (!isActive || !snapshot) return;
+        hydrateWorkspace(snapshot);
+        document.documentElement.classList.toggle("dark", snapshot.userSettings.theme === "dark");
+        document.documentElement.style.setProperty("--color-primary", snapshot.userSettings.primaryColor);
+        document.documentElement.style.setProperty("--color-secondary", snapshot.userSettings.secondaryColor);
+      })
+      .catch((error) => {
+        console.error("No se pudo cargar el workspace de ZenFlow.", error);
+      });
+
+    return () => {
+      isActive = false;
+    };
+  }, [hydrateWorkspace, session]);
 
   const value = useMemo<AuthContextValue>(() => ({
     session,

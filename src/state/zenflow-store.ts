@@ -105,6 +105,7 @@ interface ZenflowState {
   trashItems: TrashItem[];
   activeTimer?: { blockId: ID; isRunning: boolean; elapsedSeconds: number; durationSeconds: number };
   toast?: string;
+  hydrateWorkspace: (input: Partial<Pick<ZenflowState, "organizations" | "projects" | "tasks" | "subtasks" | "taskLinks" | "calendarBlocks" | "activityLogs" | "notifications" | "userSettings" | "trashItems">>) => void;
   setToast: (message?: string) => void;
   updateFilters: (input: Partial<ZenflowFilters>) => void;
   resetFilters: () => void;
@@ -158,6 +159,8 @@ export const useZenflowStore = create<ZenflowState>((set, get) => ({
   trashItems: initialTrashItems,
   activeTimer: undefined,
   toast: undefined,
+
+  hydrateWorkspace: (input) => set((state) => ({ ...state, ...input })),
 
   setToast: (message) => set({ toast: message }),
 

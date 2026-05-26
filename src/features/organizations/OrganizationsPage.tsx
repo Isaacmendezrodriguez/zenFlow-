@@ -10,6 +10,7 @@ import { Textarea } from "../../components/ui/Textarea";
 import { isSupabaseConfigured } from "../../lib/supabase";
 import { useZenflowStore } from "../../state/zenflow-store";
 import { createOrganization as createRemoteOrganization, deleteOrganization as deleteRemoteOrganization, listOrganizations, updateOrganization as updateRemoteOrganization } from "./services/organizations.service";
+import { loadOrSeedWorkspace } from "../workspace/workspace-sync.service";
 
 type OrganizationView = { id: string; name: string; description?: string | null };
 
@@ -21,12 +22,12 @@ export function OrganizationsPage() {
   const createOrganization = useZenflowStore((state) => state.createOrganization);
   const updateOrganization = useZenflowStore((state) => state.updateOrganization);
   const deleteOrganization = useZenflowStore((state) => state.deleteOrganization);
-  const [remoteOrganizations, setRemoteOrganizations] = useState<OrganizationView[] | null>(null);
+  const hydrateWorkspace = useZenflowStore((state) => state.hydrateWorkspace);
   const [editingOrganization, setEditingOrganization] = useState<OrganizationView | null>(null);
   const [isCreating, setIsCreating] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const searchQuery = filters.searchQuery.trim().toLowerCase();
-  const sourceOrganizations: OrganizationView[] = remoteOrganizations ?? organizations;
+  const sourceOrganizations: OrganizationView[] = organizations;
   const visibleOrganizations = sourceOrganizations.filter((organization) => {
     if (filters.organizationId !== "all" && organization.id !== filters.organizationId) return false;
     if (searchQuery && !`${organization.name} ${organization.description ?? ""}`.toLowerCase().includes(searchQuery)) return false;
@@ -35,18 +36,26 @@ export function OrganizationsPage() {
 
   useEffect(() => {
     if (!isSupabaseConfigured) return;
-    listOrganizations().then((result) => {
-      if (result.data) setRemoteOrganizations(result.data);
+    listOrganizations().then(async (result) => {
+      if (result.data?.length) {
+        const snapshot = await loadOrSeedWorkspace();
+        if (snapshot) hydrateWorkspace(snapshot);
+      }
       if (result.error) setMessage(result.error);
     });
-  }, []);
+  }, [hydrateWorkspace]);
+
+  async function refreshWorkspace() {
+    const snapshot = await loadOrSeedWorkspace();
+    if (snapshot) hydrateWorkspace(snapshot);
+  }
 
   async function handleDelete(organization: OrganizationView) {
     if (!window.confirm(`Eliminar "${organization.name}"?`)) return;
     if (isSupabaseConfigured) {
       const result = await deleteRemoteOrganization(organization.id);
       if (result.error) setMessage(result.error);
-      else setRemoteOrganizations((current) => current?.filter((item) => item.id !== organization.id) ?? null);
+      else await refreshWorkspace();
       return;
     }
     const result = deleteOrganization(organization.id);
@@ -107,7 +116,7 @@ export function OrganizationsPage() {
           if (isSupabaseConfigured) {
             const result = editingOrganization ? await updateRemoteOrganization(editingOrganization.id, input) : await createRemoteOrganization(input);
             if (result.error) setMessage(result.error);
-            else if (result.data) setRemoteOrganizations((current) => editingOrganization ? (current ?? []).map((item) => item.id === result.data.id ? result.data : item) : [result.data, ...(current ?? [])]);
+            else await refreshWorkspace();
           } else if (editingOrganization) updateOrganization(editingOrganization.id, { name: input.name, description: input.description ?? undefined });
           else createOrganization({ name: input.name, description: input.description ?? undefined });
           setIsCreating(false);
