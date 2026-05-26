@@ -317,6 +317,7 @@ export const useZenflowStore = create<ZenflowState>((set, get) => ({
       subtasks: [...state.subtasks, ...createdSubtasks],
       activityLogs: [...state.activityLogs, createLog(task.id, "card_created", "Card creada")],
     }));
+    persistTaskCreate(task, createdSubtasks);
     return { ok: true, task };
   },
 
@@ -650,16 +651,21 @@ export const useZenflowStore = create<ZenflowState>((set, get) => ({
 }));
 
 function makeId(prefix: string): string {
+  if (isSupabaseConfigured && typeof crypto !== "undefined" && "randomUUID" in crypto) {
+    return crypto.randomUUID();
+  }
   return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
 }
 
 function runRemoteSync(task: () => Promise<void>) {
   if (!isSupabaseConfigured) return;
-  task().catch((error) => {
+  remoteSyncQueue = remoteSyncQueue.then(task).catch((error) => {
     console.error("No se pudo sincronizar con Supabase.", error);
     useZenflowStore.setState({ toast: "No se pudo guardar en Supabase. Revisa tu conexion." });
   });
 }
+
+let remoteSyncQueue = Promise.resolve();
 
 async function refreshRemoteWorkspace() {
   const snapshot = await loadOrSeedWorkspace();
@@ -671,6 +677,47 @@ async function getRemoteUserId() {
   if (error) throw error;
   if (!data.user) throw new Error("Usuario no autenticado.");
   return data.user.id;
+}
+
+function persistTaskCreate(task: Task, subtasks: Subtask[]) {
+  runRemoteSync(async () => {
+    const userId = await getRemoteUserId();
+    const client = getSupabaseClient();
+    const { error } = await client.from("tasks").insert({
+      id: task.id,
+      user_id: userId,
+      organization_id: task.organizationId ?? null,
+      project_id: task.projectId ?? null,
+      title: task.title,
+      description: task.description,
+      type: task.type,
+      status: task.status,
+      priority: task.priority,
+      due_date: task.dueDate ?? null,
+      estimated_hours: task.estimatedHours,
+      real_hours: task.realHours,
+      progress: task.progress,
+      notes: task.notes ?? null,
+    });
+    if (error) throw error;
+    if (subtasks.length) {
+      const { error: subtaskError } = await client.from("subtasks").insert(subtasks.map((subtask) => ({
+        id: subtask.id,
+        user_id: userId,
+        task_id: task.id,
+        title: subtask.title,
+        description: subtask.description ?? null,
+        priority: subtask.priority,
+        status: subtask.status,
+        estimated_hours: subtask.estimatedHours,
+        real_hours: subtask.realHours,
+        progress: subtask.progress,
+      })));
+      if (subtaskError) throw subtaskError;
+    }
+    await persistActivityLog(task.id, "card_created", "Card creada");
+    await refreshRemoteWorkspace();
+  });
 }
 
 function persistTaskUpdate(id: ID, input: Partial<Task>) {
@@ -929,7 +976,7 @@ async function persistActivityLog(taskId: ID, eventType: string, message: string
 }
 
 function mapTaskUpdate(input: Partial<Task>) {
-  return {
+  return withoutUndefined({
     organization_id: input.organizationId,
     title: input.title,
     description: input.description,
@@ -944,11 +991,11 @@ function mapTaskUpdate(input: Partial<Task>) {
     archived_at: input.archivedAt,
     completed_at: input.completedAt,
     deleted_at: input.deletedAt,
-  };
+  });
 }
 
 function mapSubtaskUpdate(input: Partial<Subtask>) {
-  return {
+  return withoutUndefined({
     title: input.title,
     description: input.description,
     priority: input.priority,
@@ -957,7 +1004,11 @@ function mapSubtaskUpdate(input: Partial<Subtask>) {
     real_hours: input.realHours,
     progress: input.progress,
     completed_at: input.completedAt,
-  };
+  });
+}
+
+function withoutUndefined<T extends Record<string, unknown>>(input: T): Partial<T> {
+  return Object.fromEntries(Object.entries(input).filter(([, value]) => value !== undefined)) as Partial<T>;
 }
 
 function createLog(taskId: ID, eventType: string, message: string): ActivityLog {

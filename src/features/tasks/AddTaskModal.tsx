@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Briefcase, FileText, Link as LinkIcon, ListChecks, Plus } from "lucide-react";
-import { useState } from "react";
+import { Briefcase, FileText, Link as LinkIcon, ListChecks, Plus, Trash2 } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Badge } from "../../components/ui/Badge";
 import { Button } from "../../components/ui/Button";
@@ -11,8 +11,8 @@ import { Textarea } from "../../components/ui/Textarea";
 import { CREATE_ORGANIZATION_OPTION, CREATE_PROJECT_OPTION } from "../../lib/constants";
 import { isSupabaseConfigured } from "../../lib/supabase";
 import { addTaskSchema, type AddTaskFormValues } from "../../lib/validators";
-import { subtasks } from "../../mocks/mock-data";
 import { useZenflowStore } from "../../state/zenflow-store";
+import type { Priority } from "../../types/domain";
 import { loadOrSeedWorkspace } from "../workspace/workspace-sync.service";
 import { createTaskWithSubtasks } from "./services/tasks.service";
 
@@ -21,9 +21,26 @@ interface AddTaskModalProps {
   onClose: () => void;
 }
 
+interface DraftSubtask {
+  id: string;
+  title: string;
+  description: string;
+  estimatedHours: number;
+  priority: Priority;
+}
+
+const emptyDraftSubtask = (): DraftSubtask => ({
+  id: `draft-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+  title: "",
+  description: "",
+  estimatedHours: 1,
+  priority: "medium",
+});
+
 export function AddTaskModal({ isOpen, onClose }: AddTaskModalProps) {
   const [taskType, setTaskType] = useState<"simple" | "complex">("simple");
   const [error, setError] = useState<string | null>(null);
+  const [draftSubtasks, setDraftSubtasks] = useState<DraftSubtask[]>([emptyDraftSubtask()]);
   const storeOrganizations = useZenflowStore((state) => state.organizations);
   const storeProjects = useZenflowStore((state) => state.projects);
   const createTask = useZenflowStore((state) => state.createTask);
@@ -40,16 +57,42 @@ export function AddTaskModal({ isOpen, onClose }: AddTaskModalProps) {
   const selectedOrganization = watch("organizationId");
   const scopedProjects = storeProjects.filter((project) => !selectedOrganization || project.organizationId === selectedOrganization);
 
+  useEffect(() => {
+    if (!isOpen) return;
+    setError(null);
+    setDraftSubtasks([emptyDraftSubtask()]);
+  }, [isOpen]);
+
   async function submitMockTask(values: AddTaskFormValues) {
-    const subtaskInput = taskType === "complex" ? subtasks.slice(0, 2).map((subtask) => ({ title: subtask.title, description: subtask.description, estimatedHours: subtask.estimatedHours, priority: subtask.priority })) : undefined;
+    const organizationId = values.organizationId === CREATE_ORGANIZATION_OPTION ? "" : values.organizationId;
+    const projectId = values.projectId === CREATE_PROJECT_OPTION ? "" : values.projectId;
+    const subtaskInput = taskType === "complex"
+      ? draftSubtasks.map((subtask) => ({
+        title: subtask.title.trim(),
+        description: subtask.description.trim() || undefined,
+        estimatedHours: Number(subtask.estimatedHours),
+        priority: subtask.priority,
+      }))
+      : undefined;
+
+    if (taskType === "complex") {
+      if (!organizationId || !projectId || !values.dueDate) {
+        setError("Una tarea compleja requiere organizacion, proyecto y fecha.");
+        return;
+      }
+      if (!subtaskInput?.length || subtaskInput.some((subtask) => !subtask.title || subtask.estimatedHours <= 0)) {
+        setError("Agrega al menos una subtarea con titulo y horas estimadas mayores a 0.");
+        return;
+      }
+    }
 
     if (isSupabaseConfigured) {
       const result = await createTaskWithSubtasks({
         title: values.title,
         description: values.description,
         type: taskType,
-        organizationId: values.organizationId || undefined,
-        projectId: values.projectId || undefined,
+        organizationId: organizationId || undefined,
+        projectId: projectId || undefined,
         dueDate: values.dueDate || undefined,
         priority: values.priority,
         subtasks: subtaskInput,
@@ -69,8 +112,8 @@ export function AddTaskModal({ isOpen, onClose }: AddTaskModalProps) {
       title: values.title,
       description: values.description,
       type: taskType,
-      organizationId: values.organizationId || undefined,
-      projectId: values.projectId || undefined,
+      organizationId: organizationId || undefined,
+      projectId: projectId || undefined,
       dueDate: values.dueDate || undefined,
       priority: values.priority,
       subtasks: subtaskInput,
@@ -93,8 +136,8 @@ export function AddTaskModal({ isOpen, onClose }: AddTaskModalProps) {
           <Button variant="outline" onClick={onClose}>
             Cancelar
           </Button>
-          <Button variant="secondary">Guardar borrador</Button>
-          <Button onClick={handleSubmit(submitMockTask)}>Crear tarea</Button>
+          <Button type="button" variant="secondary">Guardar borrador</Button>
+          <Button type="button" onClick={handleSubmit(submitMockTask)}>Crear tarea</Button>
         </div>
       }
     >
@@ -184,20 +227,62 @@ export function AddTaskModal({ isOpen, onClose }: AddTaskModalProps) {
           <section className="space-y-4 border-t border-outline-variant pt-6">
             <div className="flex items-center justify-between">
               <SectionTitle icon={<ListChecks className="h-5 w-5" />} label="Subtareas" />
-              <Button variant="ghost" size="sm" icon={<Plus className="h-4 w-4" />}>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                icon={<Plus className="h-4 w-4" />}
+                onClick={() => setDraftSubtasks((current) => [...current, emptyDraftSubtask()])}
+              >
                 Agregar subtarea
               </Button>
             </div>
-            {subtasks.slice(0, 2).map((subtask) => (
+            {draftSubtasks.map((subtask, index) => (
               <div key={subtask.id} className="grid grid-cols-12 items-center gap-3 rounded-xl border border-outline-variant bg-surface p-4">
-                <div className="col-span-6">
-                  <p className="font-semibold">{subtask.title}</p>
-                  <p className="text-xs text-on-surface-variant">{subtask.description}</p>
+                <div className="col-span-12 md:col-span-5">
+                  <Input
+                    value={subtask.title}
+                    placeholder={`Subtarea ${index + 1}`}
+                    onChange={(event) => setDraftSubtasks((current) => current.map((item) => (item.id === subtask.id ? { ...item, title: event.target.value } : item)))}
+                  />
+                  <Input
+                    className="mt-2"
+                    value={subtask.description}
+                    placeholder="Descripcion opcional"
+                    onChange={(event) => setDraftSubtasks((current) => current.map((item) => (item.id === subtask.id ? { ...item, description: event.target.value } : item)))}
+                  />
                 </div>
-                <div className="col-span-3">
-                  <Badge tone={subtask.priority === "urgent" ? "error" : "neutral"}>{subtask.priority}</Badge>
+                <div className="col-span-6 md:col-span-3">
+                  <Select
+                    value={subtask.priority}
+                    onChange={(event) => setDraftSubtasks((current) => current.map((item) => (item.id === subtask.id ? { ...item, priority: event.target.value as Priority } : item)))}
+                  >
+                    <option value="urgent">Urgente</option>
+                    <option value="medium">Intermedia</option>
+                    <option value="low">Baja</option>
+                  </Select>
                 </div>
-                <div className="col-span-3 text-right text-sm font-semibold">{subtask.estimatedHours}h</div>
+                <div className="col-span-4 md:col-span-3">
+                  <Input
+                    type="number"
+                    min={0.25}
+                    step={0.25}
+                    value={subtask.estimatedHours}
+                    onChange={(event) => setDraftSubtasks((current) => current.map((item) => (item.id === subtask.id ? { ...item, estimatedHours: Number(event.target.value) } : item)))}
+                  />
+                </div>
+                <div className="col-span-2 flex justify-end md:col-span-1">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    disabled={draftSubtasks.length === 1}
+                    onClick={() => setDraftSubtasks((current) => current.filter((item) => item.id !== subtask.id))}
+                    aria-label="Eliminar subtarea"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
             ))}
           </section>
