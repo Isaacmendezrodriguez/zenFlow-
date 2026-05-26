@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import type { Session, User } from "@supabase/supabase-js";
-import { Navigate, useLocation } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import { isSupabaseConfigured, supabase } from "../../lib/supabase";
 
 interface AuthContextValue {
@@ -55,10 +55,8 @@ export function useAuth() {
 
 export function ProtectedRoute({ children }: { children: ReactNode }) {
   const auth = useAuth();
-  const location = useLocation();
 
   if (auth.isLoading) return <div className="min-h-screen bg-background p-8 text-on-background">Cargando sesion...</div>;
-  if (!auth.isDevelopmentFallback && !auth.session) return <Navigate to="/login" replace state={{ from: location }} />;
 
   return <>{children}</>;
 }

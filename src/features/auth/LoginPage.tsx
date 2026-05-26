@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { Card } from "../../components/ui/Card";
 import { Input } from "../../components/ui/Input";
@@ -20,20 +20,7 @@ export function LoginPage() {
   }
 
   async function handleSignIn() {
-    const validationMessage = validateForm();
-    if (validationMessage) {
-      setMessage(validationMessage);
-      return;
-    }
-    if (!isSupabaseConfigured) {
-      navigate("/dashboard");
-      return;
-    }
-    setSubmitting(true);
-    const result = await signIn(email, password);
-    setSubmitting(false);
-    if (result.error) setMessage(result.error);
-    else navigate("/dashboard");
+    navigate("/dashboard");
   }
 
   async function handleSignUp() {
@@ -77,12 +64,12 @@ export function LoginPage() {
           <Input type="email" placeholder="correo@ejemplo.com" value={email} onChange={(event) => setEmail(event.target.value)} />
           <Input type="password" placeholder="Contrasena" value={password} onChange={(event) => setPassword(event.target.value)} />
           <Button className="w-full" onClick={handleSignIn} disabled={isSubmitting}>
-            {isSubmitting ? "Procesando..." : isSupabaseConfigured ? "Entrar" : "Entrar con mock session"}
+            Entrar a ZenFlow
           </Button>
           <button className="block w-full text-center text-sm font-semibold text-primary hover:underline disabled:opacity-60" onClick={handleSignUp} disabled={isSubmitting}>
-            Crear cuenta y configurar organizacion
+            Crear usuario Supabase y configurar organizacion
           </button>
-          {!isSupabaseConfigured ? <Link className="block text-center text-xs text-on-surface-variant hover:text-primary" to="/dashboard">Continuar al prototipo mock</Link> : null}
+          <p className="text-center text-xs text-on-surface-variant">Uso personal: puedes entrar sin iniciar sesion.</p>
         </div>
       </Card>
     </main>
