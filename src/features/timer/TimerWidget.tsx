@@ -12,6 +12,7 @@ function formatTimer(seconds: number) {
 
 export function TimerWidget() {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [showOptions, setShowOptions] = useState(false);
   const [selectedBlockId, setSelectedBlockId] = useState("");
   const [timerMinutes, setTimerMinutes] = useState(50);
   const calendarBlocks = useZenflowStore((state) => state.calendarBlocks);
@@ -41,7 +42,7 @@ export function TimerWidget() {
 
   function beginTimer() {
     const blockId = selectedBlockId || activeBlock?.id || availableBlocks[0]?.id;
-    if (blockId) startTimer(blockId, timerMinutes);
+    startTimer(blockId, timerMinutes);
   }
 
   function handlePrimaryAction() {
@@ -140,13 +141,20 @@ export function TimerWidget() {
         <button className="flex h-14 w-14 items-center justify-center rounded-full bg-[#4cc9f0] text-[#101318] shadow-lg transition hover:scale-105" aria-label={activeTimer?.isRunning ? "Pausar temporizador" : "Iniciar temporizador"} onClick={handlePrimaryAction}>
           {activeTimer?.isRunning ? <Pause className="h-6 w-6 fill-current" /> : <Play className="h-6 w-6 fill-current" />}
         </button>
-        <button className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/15" aria-label="Mas opciones">
+        <button className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/15" aria-label="Mas opciones" onClick={() => setShowOptions((value) => !value)}>
           <MoreHorizontal className="h-5 w-5" />
         </button>
         <button className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/15" aria-label="Finalizar temporizador" onClick={stopTimer}>
           <Square className="h-4 w-4" />
         </button>
       </div>
+      {showOptions ? (
+        <div className="mt-4 grid grid-cols-3 gap-2 rounded-lg bg-white/5 p-2 text-xs font-semibold text-white/85">
+          <button className="rounded-md px-2 py-2 transition hover:bg-white/10" onClick={() => setTimerMinutes((value) => Math.max(value - 5, 5))} disabled={Boolean(activeTimer)}>-5 min</button>
+          <button className="rounded-md px-2 py-2 transition hover:bg-white/10" onClick={() => setTimerMinutes(50)} disabled={Boolean(activeTimer)}>50 min</button>
+          <button className="rounded-md px-2 py-2 transition hover:bg-white/10" onClick={() => setTimerMinutes((value) => Math.min(value + 5, 240))} disabled={Boolean(activeTimer)}>+5 min</button>
+        </div>
+      ) : null}
       <p className="mt-5 text-center text-sm text-white/80">A continuacion: <span className="font-semibold text-white">Descanso de {userSettings.timerBreakMinutes} minutos</span></p>
     </div>
   );

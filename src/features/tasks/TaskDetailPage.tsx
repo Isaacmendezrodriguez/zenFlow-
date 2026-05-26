@@ -7,11 +7,23 @@ import { ProgressBar } from "../../components/ui/ProgressBar";
 import { PRIORITY_LABELS, STATUS_LABELS } from "../../lib/constants";
 import { calculateHourDifference } from "../../lib/calculations";
 import { canEditTask } from "../../lib/business-rules";
-import { activityLogs, organizations, projects, subtasks, taskLinks, tasks } from "../../mocks/mock-data";
+import { useZenflowStore } from "../../state/zenflow-store";
+import { EmptyState } from "../../components/ui/EmptyState";
 
 export function TaskDetailPage() {
   const { taskId } = useParams();
-  const task = tasks.find((item) => item.id === taskId) ?? tasks[0];
+  const tasks = useZenflowStore((state) => state.tasks);
+  const organizations = useZenflowStore((state) => state.organizations);
+  const projects = useZenflowStore((state) => state.projects);
+  const subtasks = useZenflowStore((state) => state.subtasks);
+  const taskLinks = useZenflowStore((state) => state.taskLinks);
+  const activityLogs = useZenflowStore((state) => state.activityLogs);
+  const task = tasks.find((item) => item.id === taskId);
+
+  if (!task) {
+    return <EmptyState title="Tarea no encontrada" description="Esta tarea no existe en tu workspace actual." />;
+  }
+
   const organization = organizations.find((item) => item.id === task.organizationId);
   const project = projects.find((item) => item.id === task.projectId);
   const taskSubtasks = subtasks.filter((subtask) => subtask.taskId === task.id);

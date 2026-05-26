@@ -106,7 +106,7 @@ interface ZenflowState {
   userSettings: UserSettings;
   filters: ZenflowFilters;
   trashItems: TrashItem[];
-  activeTimer?: { blockId: ID; isRunning: boolean; elapsedSeconds: number; durationSeconds: number };
+  activeTimer?: { blockId?: ID; isRunning: boolean; elapsedSeconds: number; durationSeconds: number };
   toast?: string;
   hydrateWorkspace: (input: Partial<Pick<ZenflowState, "organizations" | "projects" | "tasks" | "subtasks" | "taskLinks" | "calendarBlocks" | "activityLogs" | "notifications" | "userSettings" | "trashItems">>) => void;
   setToast: (message?: string) => void;
@@ -132,7 +132,7 @@ interface ZenflowState {
   createCalendarBlock: (input: BlockInput) => { ok: boolean; block?: CalendarBlock; message?: string; warning?: string };
   completeCalendarBlock: (id: ID, realHours?: number) => { ok: boolean; message?: string };
   deleteCalendarBlock: (id: ID) => { ok: boolean; message?: string };
-  startTimer: (blockId: ID, durationMinutes?: number) => void;
+  startTimer: (blockId?: ID, durationMinutes?: number) => void;
   toggleTimer: () => void;
   tickTimer: () => void;
   stopTimer: () => void;
@@ -496,7 +496,12 @@ export const useZenflowStore = create<ZenflowState>((set, get) => ({
       color: input.color ?? "#d1fae5",
     };
     const warning = getBlockOverlapWarning(block, get().calendarBlocks);
-    set((state) => ({ calendarBlocks: [...state.calendarBlocks, block] }));
+    set((state) => ({
+      calendarBlocks: [...state.calendarBlocks, block],
+      tasks: block.taskId
+        ? state.tasks.map((task) => (task.id === block.taskId && task.status === "not_started" ? { ...task, status: "in_progress", progress: Math.max(task.progress, task.type === "simple" ? 50 : task.progress) } : task))
+        : state.tasks,
+    }));
     persistCalendarBlock(block);
     return { ok: true, block, warning };
   },
@@ -517,6 +522,26 @@ export const useZenflowStore = create<ZenflowState>((set, get) => ({
           if (parent) nextTasks = current.tasks.map((task) => (task.id === parent.id ? recalculateTaskFromSubtasks(task, nextSubtasks.filter((item) => item.taskId === parent.id)) : task));
         }
       } else if (block.taskId && appliedHours > 0) {
+        const linkedTask = current.tasks.find((task) => task.id === block.taskId);
+        if (linkedTask?.type === "complex") {
+          const taskSubtasks = current.subtasks.filter((item) => item.taskId === linkedTask.id);
+          const targetSubtask = taskSubtasks.find((item) => item.status !== "done") ?? taskSubtasks[0];
+          if (targetSubtask) {
+            nextSubtasks = current.subtasks.map((item) => {
+              if (item.id !== targetSubtask.id) return item;
+              const nextHours = item.realHours + appliedHours;
+              const progress = item.estimatedHours > 0 ? Math.min(Math.round((nextHours / item.estimatedHours) * 100), 100) : 0;
+              return {
+                ...item,
+                realHours: nextHours,
+                progress,
+                status: progress >= 100 ? "done" : "in_progress",
+                completedAt: progress >= 100 ? new Date().toISOString() : item.completedAt,
+              };
+            });
+            nextTasks = current.tasks.map((task) => (task.id === linkedTask.id ? recalculateTaskFromSubtasks({ ...task, status: task.status === "not_started" ? "in_progress" : task.status }, nextSubtasks.filter((item) => item.taskId === linkedTask.id)) : task));
+          }
+        } else {
         nextTasks = current.tasks.map((task) => {
           if (task.id !== block.taskId) return task;
           if (task.type === "simple") {
@@ -532,6 +557,7 @@ export const useZenflowStore = create<ZenflowState>((set, get) => ({
           }
           return task;
         });
+        }
       }
       return {
         calendarBlocks: current.calendarBlocks.map((item) => (item.id === id ? { ...item, status: "completed", completedAt: new Date().toISOString(), realHoursApplied: appliedHours } : item)),
@@ -782,6 +808,13 @@ function persistCalendarBlock(block: CalendarBlock) {
       color: block.color,
     });
     if (error) throw error;
+    if (block.taskId) {
+      const task = useZenflowStore.getState().tasks.find((item) => item.id === block.taskId);
+      if (task) {
+        const { error: taskError } = await getSupabaseClient().from("tasks").update(mapTaskUpdate(task)).eq("id", task.id);
+        if (taskError) throw taskError;
+      }
+    }
     await refreshRemoteWorkspace();
   });
 }
@@ -801,6 +834,13 @@ function persistCalendarBlockComplete(id: ID, realHours: number) {
     if (subtask) {
       const { error: subtaskError } = await client.from("subtasks").update(mapSubtaskUpdate(subtask)).eq("id", subtask.id);
       if (subtaskError) throw subtaskError;
+    }
+    if (block?.taskId) {
+      const changedSubtasks = useZenflowStore.getState().subtasks.filter((item) => item.taskId === block.taskId);
+      for (const item of changedSubtasks) {
+        const { error: subtaskError } = await client.from("subtasks").update(mapSubtaskUpdate(item)).eq("id", item.id);
+        if (subtaskError) throw subtaskError;
+      }
     }
     await refreshRemoteWorkspace();
   });
