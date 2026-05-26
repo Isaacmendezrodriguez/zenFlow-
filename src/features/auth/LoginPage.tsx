@@ -11,25 +11,53 @@ export function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState<string | null>(null);
+  const [isSubmitting, setSubmitting] = useState(false);
+
+  function validateForm() {
+    if (!email.trim()) return "Escribe tu correo.";
+    if (password.length < 6) return "La contrasena debe tener al menos 6 caracteres.";
+    return null;
+  }
 
   async function handleSignIn() {
+    const validationMessage = validateForm();
+    if (validationMessage) {
+      setMessage(validationMessage);
+      return;
+    }
     if (!isSupabaseConfigured) {
       navigate("/dashboard");
       return;
     }
+    setSubmitting(true);
     const result = await signIn(email, password);
+    setSubmitting(false);
     if (result.error) setMessage(result.error);
     else navigate("/dashboard");
   }
 
   async function handleSignUp() {
+    const validationMessage = validateForm();
+    if (validationMessage) {
+      setMessage(validationMessage);
+      return;
+    }
     if (!isSupabaseConfigured) {
       navigate("/onboarding");
       return;
     }
+    setSubmitting(true);
     const result = await signUp(email, password);
-    if (result.error) setMessage(result.error);
-    else navigate("/onboarding");
+    setSubmitting(false);
+    if (result.error) {
+      setMessage(result.error);
+      return;
+    }
+    if (result.data?.session) {
+      navigate("/onboarding");
+      return;
+    }
+    setMessage("Cuenta creada. Revisa tu correo y confirma el enlace antes de entrar.");
   }
 
   return (
@@ -48,13 +76,13 @@ export function LoginPage() {
         <div className="space-y-4">
           <Input type="email" placeholder="correo@ejemplo.com" value={email} onChange={(event) => setEmail(event.target.value)} />
           <Input type="password" placeholder="Contrasena" value={password} onChange={(event) => setPassword(event.target.value)} />
-          <Button className="w-full" onClick={handleSignIn}>
-            {isSupabaseConfigured ? "Entrar" : "Entrar con mock session"}
+          <Button className="w-full" onClick={handleSignIn} disabled={isSubmitting}>
+            {isSubmitting ? "Procesando..." : isSupabaseConfigured ? "Entrar" : "Entrar con mock session"}
           </Button>
-          <button className="block w-full text-center text-sm font-semibold text-primary hover:underline" onClick={handleSignUp}>
+          <button className="block w-full text-center text-sm font-semibold text-primary hover:underline disabled:opacity-60" onClick={handleSignUp} disabled={isSubmitting}>
             Crear cuenta y configurar organizacion
           </button>
-          <Link className="block text-center text-xs text-on-surface-variant hover:text-primary" to="/dashboard">Continuar al prototipo mock</Link>
+          {!isSupabaseConfigured ? <Link className="block text-center text-xs text-on-surface-variant hover:text-primary" to="/dashboard">Continuar al prototipo mock</Link> : null}
         </div>
       </Card>
     </main>

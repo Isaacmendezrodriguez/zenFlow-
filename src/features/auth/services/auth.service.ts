@@ -1,7 +1,8 @@
 import { getSupabaseClient, isSupabaseConfigured, supabase } from "../../../lib/supabase";
 import { failure, success, type ServiceResult } from "../../../lib/service-result";
+import type { AuthResponse, Session, User } from "@supabase/supabase-js";
 
-export async function signIn(email: string, password: string): Promise<ServiceResult<unknown>> {
+export async function signIn(email: string, password: string): Promise<ServiceResult<AuthResponse["data"]>> {
   try {
     const { data, error } = await getSupabaseClient().auth.signInWithPassword({ email, password });
     if (error) return failure(error);
@@ -11,7 +12,7 @@ export async function signIn(email: string, password: string): Promise<ServiceRe
   }
 }
 
-export async function signUp(email: string, password: string, fullName?: string): Promise<ServiceResult<unknown>> {
+export async function signUp(email: string, password: string, fullName?: string): Promise<ServiceResult<AuthResponse["data"]>> {
   try {
     const { data, error } = await getSupabaseClient().auth.signUp({ email, password, options: { data: { full_name: fullName } } });
     if (error) return failure(error);
@@ -32,7 +33,7 @@ export async function signOut(): Promise<ServiceResult<boolean>> {
   }
 }
 
-export async function getSession(): Promise<ServiceResult<unknown>> {
+export async function getSession(): Promise<ServiceResult<Session | null>> {
   try {
     if (!isSupabaseConfigured || !supabase) return success(null);
     const { data, error } = await supabase.auth.getSession();
@@ -43,7 +44,7 @@ export async function getSession(): Promise<ServiceResult<unknown>> {
   }
 }
 
-export async function getCurrentUser(): Promise<ServiceResult<unknown>> {
+export async function getCurrentUser(): Promise<ServiceResult<User | null>> {
   try {
     if (!isSupabaseConfigured || !supabase) return success(null);
     const { data, error } = await supabase.auth.getUser();
