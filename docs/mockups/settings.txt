@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ZenFlow - Configuración</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-error-container": "#93000a",
+                    "on-tertiary-fixed": "#351000",
+                    "on-secondary": "#ffffff",
+                    "tertiary": "#511c00",
+                    "secondary-container": "#62fae3",
+                    "surface-dim": "#dcd8e3",
+                    "background": "#fcf8ff",
+                    "surface-bright": "#fcf8ff",
+                    "primary-fixed-dim": "#c3c0ff",
+                    "on-primary-container": "#a9a7ff",
+                    "on-error": "#ffffff",
+                    "on-background": "#1b1b22",
+                    "on-surface-variant": "#464553",
+                    "surface-container-high": "#eae6f1",
+                    "secondary-fixed-dim": "#3cddc7",
+                    "primary-container": "#3730a3",
+                    "tertiary-container": "#752c00",
+                    "surface-tint": "#544fc0",
+                    "surface-container-low": "#f6f2fc",
+                    "error": "#ba1a1a",
+                    "on-tertiary-fixed-variant": "#7a3003",
+                    "surface": "#fcf8ff",
+                    "primary-fixed": "#e2dfff",
+                    "surface-variant": "#e4e1eb",
+                    "primary": "#1f108e",
+                    "on-secondary-fixed": "#00201c",
+                    "secondary-fixed": "#62fae3",
+                    "on-secondary-container": "#007165",
+                    "inverse-surface": "#303037",
+                    "surface-container": "#f0ecf6",
+                    "tertiary-fixed": "#ffdbcc",
+                    "outline": "#777584",
+                    "on-primary-fixed": "#00201c",
+                    "surface-container-lowest": "#ffffff",
+                    "tertiary-fixed-dim": "#ffb694",
+                    "on-secondary-fixed-variant": "#005047",
+                    "on-primary": "#ffffff",
+                    "secondary": "#006b5f",
+                    "inverse-primary": "#c3c0ff",
+                    "outline-variant": "#c8c4d5",
+                    "on-tertiary-container": "#fe9562",
+                    "inverse-on-surface": "#f3eff9",
+                    "surface-container-highest": "#e4e1eb",
+                    "on-tertiary": "#ffffff",
+                    "error-container": "#ffdad6",
+                    "on-primary-fixed-variant": "#3b35a7",
+                    "on-surface": "#1b1b22"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "base": "8px",
+                    "gutter": "24px",
+                    "sm": "12px",
+                    "margin-desktop": "40px",
+                    "xl": "80px",
+                    "lg": "48px",
+                    "md": "24px",
+                    "margin-mobile": "16px",
+                    "xs": "4px"
+            },
+            "fontFamily": {
+                    "headline-xl": ["Inter"],
+                    "headline-xl-mobile": ["Inter"],
+                    "body-md": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "label-sm": ["Inter"],
+                    "headline-lg": ["Inter"],
+                    "label-md": ["Inter"],
+                    "headline-md": ["Inter"]
+            },
+            "fontSize": {
+                    "headline-xl": ["36px", {"lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "headline-xl-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "700"}],
+                    "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "label-sm": ["11px", {"lineHeight": "14px", "fontWeight": "600"}],
+                    "headline-lg": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.015em", "fontWeight": "600"}],
+                    "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "500"}],
+                    "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #e4e1eb; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #c8c4d5; }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(8px);
+        }
+        .toggle-switch:checked + .toggle-bg { background-color: #3730a3; }
+        .toggle-switch:checked + .toggle-bg .toggle-dot { transform: translateX(100%); }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-md selection:bg-primary-container selection:text-on-primary-container">
+<!-- SideNavBar -->
+<aside class="h-screen w-64 fixed left-0 top-0 bg-surface-container-low dark:bg-surface-container-lowest border-r border-outline-variant dark:border-outline z-50 flex flex-col p-4 gap-2">
+<div class="flex items-center gap-3 px-2 py-4 mb-4">
+<div class="w-10 h-10 bg-primary flex items-center justify-center rounded-xl text-on-primary">
+<span class="material-symbols-outlined">bolt</span>
+</div>
+<div>
+<h1 class="text-headline-lg font-headline-lg font-bold text-primary dark:text-primary-fixed-dim">ZenFlow</h1>
+<p class="text-label-md text-on-surface-variant">Productivity Suite</p>
+</div>
+</div>
+<button class="w-full py-3 px-4 bg-primary text-on-primary rounded-xl font-semibold flex items-center justify-center gap-2 mb-6 hover:opacity-90 transition-all active:scale-[0.98]">
+<span class="material-symbols-outlined">add</span>
+            + Agregar tarea
+        </button>
+<nav class="space-y-1 overflow-y-auto flex-grow">
+<a class="flex items-center gap-3 px-4 py-2 text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-surface-container-highest rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined">dashboard</span> Dashboard
+            </a>
+<a class="flex items-center gap-3 px-4 py-2 text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-surface-container-highest rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined">inventory_2</span> Backlog
+            </a>
+<a class="flex items-center gap-3 px-4 py-2 text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-surface-container-highest rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined">calendar_view_week</span> To-do semanal
+            </a>
+<a class="flex items-center gap-3 px-4 py-2 text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-surface-container-highest rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined">corporate_fare</span> Organizaciones
+            </a>
+<a class="flex items-center gap-3 px-4 py-2 text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-surface-container-highest rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined">account_tree</span> Proyectos
+            </a>
+<div class="h-px bg-outline-variant my-4"></div>
+<a class="flex items-center gap-3 px-4 py-2 text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-surface-container-highest rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined">archive</span> Archivo
+            </a>
+<a class="flex items-center gap-3 px-4 py-2 text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-surface-container-highest rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined">delete</span> Papelera
+            </a>
+<a class="flex items-center gap-3 px-4 py-2 bg-primary-container text-on-primary-container dark:bg-primary-fixed dark:text-on-primary-fixed rounded-lg font-semibold active:scale-[0.98] transition-transform duration-200" href="#">
+<span class="material-symbols-outlined">settings</span> Configuración
+            </a>
+</nav>
+<div class="mt-auto pt-4 border-t border-outline-variant flex items-center gap-3 px-2">
+<img alt="Avatar" class="w-8 h-8 rounded-full border border-outline-variant" data-alt="Close up portrait of a professional male designer in his early 30s with a friendly expression. The lighting is soft and natural, coming from a window in a modern, minimalist studio space. The aesthetic is clean and high-fidelity, following a light-mode color palette with subtle shadows and a professional, calm atmosphere." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDKWzZdBr_o8Pet0pAg3-GU9EU_WA2mEXO3lwHZ6dEpsRIvlcc4kfz8hb2pvIP23ypdI62j9CHpcyZbP_2P7ib8FcLdltEWufztkI9WgRODwPHfN5xvFdeaSVc3j5tyf_olnjPSvtWdLTarZ8pYlZflx3tdgUQrAK2URJXCVP3TzsfrTKlDo7ix9ZKLQKpWbtHnw-ZLueu34O2B0gxlsFqfLBm882YaEIdtlyz5oc7-yjWf8atI8QSRKOZat4N-j357scA2QrB_p774"/>
+<div class="flex-grow">
+<p class="text-label-md font-semibold truncate">Alex Rivera</p>
+<p class="text-label-sm text-on-surface-variant truncate">Premium Plan</p>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary transition-colors">logout</span>
+</div>
+</aside>
+<!-- TopAppBar -->
+<header class="fixed top-0 right-0 left-64 h-16 bg-surface/80 backdrop-blur-md border-b border-outline-variant shadow-sm z-40 flex justify-between items-center px-8">
+<div class="flex items-center gap-6">
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="bg-surface-container-low border-none rounded-full pl-10 pr-4 py-1.5 text-body-md focus:ring-2 focus:ring-primary/20 w-64 transition-all outline-none" placeholder="Buscar configuración..." type="text"/>
+</div>
+<nav class="hidden md:flex gap-6">
+<a class="text-on-surface-variant hover:text-primary transition-colors font-body-lg" href="#">Dashboard</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors font-body-lg" href="#">Projects</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<button class="hover:bg-surface-container dark:hover:bg-surface-container-highest rounded-full p-2 transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant">notifications</span>
+</button>
+<button class="hover:bg-surface-container dark:hover:bg-surface-container-highest rounded-full p-2 transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant">dark_mode</span>
+</button>
+<button class="bg-primary text-on-primary px-4 py-2 rounded-lg font-semibold active:opacity-80 transition-opacity">
+                Add Task
+            </button>
+</div>
+</header>
+<!-- Main Content Area -->
+<main class="ml-64 mt-16 p-margin-desktop min-h-screen bg-background">
+<div class="max-w-4xl mx-auto space-y-lg">
+<header>
+<h2 class="text-headline-xl font-headline-xl text-on-background mb-1">Configuración</h2>
+<p class="text-body-lg text-on-surface-variant">Personaliza tu flujo de trabajo y la interfaz de ZenFlow.</p>
+</header>
+<!-- Section 1: Apariencia -->
+<section class="space-y-md">
+<div class="flex items-center gap-2 text-primary">
+<span class="material-symbols-outlined">palette</span>
+<h3 class="text-headline-md font-headline-md">Apariencia</h3>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-md items-start">
+<!-- Theme Selection -->
+<div class="md:col-span-2 grid grid-cols-2 gap-sm">
+<div class="relative cursor-pointer group border-2 border-primary rounded-xl p-3 bg-white shadow-md">
+<div class="w-full aspect-video bg-surface-container-low rounded-lg mb-3 flex flex-col p-2 gap-1 border border-outline-variant">
+<div class="h-2 w-1/2 bg-primary/20 rounded"></div>
+<div class="h-4 w-full bg-white rounded shadow-sm border border-outline-variant/20"></div>
+<div class="h-4 w-3/4 bg-white rounded shadow-sm border border-outline-variant/20"></div>
+</div>
+<div class="flex justify-between items-center">
+<span class="font-semibold text-body-md">Modo Claro</span>
+<span class="material-symbols-outlined text-primary" data-weight="fill">check_circle</span>
+</div>
+</div>
+<div class="relative cursor-pointer group border border-outline-variant rounded-xl p-3 bg-zinc-900 shadow-md">
+<div class="w-full aspect-video bg-zinc-800 rounded-lg mb-3 flex flex-col p-2 gap-1 border border-zinc-700">
+<div class="h-2 w-1/2 bg-primary/40 rounded"></div>
+<div class="h-4 w-full bg-zinc-700 rounded shadow-sm border border-zinc-600"></div>
+<div class="h-4 w-3/4 bg-zinc-700 rounded shadow-sm border border-zinc-600"></div>
+</div>
+<div class="flex justify-between items-center text-white">
+<span class="font-semibold text-body-md opacity-70">Modo Oscuro</span>
+<span class="material-symbols-outlined text-white/20">circle</span>
+</div>
+</div>
+</div>
+<!-- Colors and Preview -->
+<div class="space-y-md">
+<div class="p-4 bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm space-y-4">
+<div class="space-y-2">
+<label class="text-label-md text-on-surface-variant">Color Primario</label>
+<div class="flex items-center gap-2">
+<div class="w-10 h-10 rounded-lg bg-primary border border-outline-variant cursor-pointer"></div>
+<input class="flex-grow bg-surface border-outline-variant rounded-lg px-3 py-1.5 text-body-md uppercase font-mono" type="text" value="#1F108E"/>
+</div>
+</div>
+<div class="space-y-2">
+<label class="text-label-md text-on-surface-variant">Color Secundario</label>
+<div class="flex items-center gap-2">
+<div class="w-10 h-10 rounded-lg bg-secondary border border-outline-variant cursor-pointer"></div>
+<input class="flex-grow bg-surface border-outline-variant rounded-lg px-3 py-1.5 text-body-md uppercase font-mono" type="text" value="#006B5F"/>
+</div>
+</div>
+</div>
+<!-- Mini Preview -->
+<div class="p-4 bg-white border border-outline-variant rounded-xl shadow-sm">
+<p class="text-label-sm text-on-surface-variant mb-2">Vista Previa</p>
+<div class="bg-surface-container-low p-3 rounded-lg border border-outline-variant space-y-2">
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-primary"></div>
+<div class="h-1.5 w-12 bg-on-surface-variant/30 rounded"></div>
+</div>
+<div class="h-6 w-full bg-white rounded border border-outline-variant/40 flex items-center px-2">
+<div class="h-1.5 w-3/4 bg-on-surface-variant/20 rounded"></div>
+</div>
+<div class="flex justify-end">
+<div class="px-3 py-1 bg-primary text-[8px] text-white rounded">Guardar</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Section 2: Colores de prioridad -->
+<section class="space-y-md">
+<div class="flex items-center gap-2 text-primary">
+<span class="material-symbols-outlined">label</span>
+<h3 class="text-headline-md font-headline-md">Colores de prioridad</h3>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-md">
+<div class="p-4 bg-surface-container-lowest border border-outline-variant rounded-xl flex items-center justify-between">
+<div class="space-y-2">
+<span class="px-2 py-0.5 bg-red-100 text-red-700 rounded text-label-md font-bold">Urgente</span>
+<div class="flex items-center gap-2">
+<input class="w-6 h-6 border-none bg-transparent cursor-pointer" type="color" value="#ba1a1a"/>
+<span class="text-label-sm font-mono text-on-surface-variant">#BA1A1A</span>
+</div>
+</div>
+</div>
+<div class="p-4 bg-surface-container-lowest border border-outline-variant rounded-xl flex items-center justify-between">
+<div class="space-y-2">
+<span class="px-2 py-0.5 bg-orange-100 text-orange-700 rounded text-label-md font-bold">Intermedio</span>
+<div class="flex items-center gap-2">
+<input class="w-6 h-6 border-none bg-transparent cursor-pointer" type="color" value="#ffb694"/>
+<span class="text-label-sm font-mono text-on-surface-variant">#FFB694</span>
+</div>
+</div>
+</div>
+<div class="p-4 bg-surface-container-lowest border border-outline-variant rounded-xl flex items-center justify-between">
+<div class="space-y-2">
+<span class="px-2 py-0.5 bg-green-100 text-green-700 rounded text-label-md font-bold">Bajo</span>
+<div class="flex items-center gap-2">
+<input class="w-6 h-6 border-none bg-transparent cursor-pointer" type="color" value="#006b5f"/>
+<span class="text-label-sm font-mono text-on-surface-variant">#006B5F</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Section 3: Backlog -->
+<section class="space-y-md">
+<div class="flex items-center gap-2 text-primary">
+<span class="material-symbols-outlined">reorder</span>
+<h3 class="text-headline-md font-headline-md">Backlog</h3>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden divide-y divide-outline-variant">
+<div class="p-4 flex items-center justify-between hover:bg-surface-container transition-colors">
+<div>
+<p class="font-semibold text-body-lg">Activar columna 'En revisión'</p>
+<p class="text-label-md text-on-surface-variant">Habilita una etapa intermedia para validación de tareas.</p>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only toggle-switch" type="checkbox"/>
+<div class="w-11 h-6 bg-surface-variant rounded-full transition-colors toggle-bg border border-outline-variant">
+<div class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform toggle-dot"></div>
+</div>
+</label>
+</div>
+<div class="p-4 flex items-center justify-between hover:bg-surface-container transition-colors">
+<div>
+<p class="font-semibold text-body-lg">Activar columna 'Bloqueadas'</p>
+<p class="text-label-md text-on-surface-variant">Visibilidad para tareas que requieren acción externa.</p>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only toggle-switch" type="checkbox"/>
+<div class="w-11 h-6 bg-surface-variant rounded-full transition-colors toggle-bg border border-outline-variant">
+<div class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform toggle-dot"></div>
+</div>
+</label>
+</div>
+<div class="p-4 flex items-center justify-between hover:bg-surface-container transition-colors">
+<div>
+<p class="font-semibold text-body-lg">Activar columna 'En espera'</p>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only toggle-switch" type="checkbox"/>
+<div class="w-11 h-6 bg-surface-variant rounded-full transition-colors toggle-bg border border-outline-variant">
+<div class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform toggle-dot"></div>
+</div>
+</label>
+</div>
+<div class="p-4 flex items-center justify-between hover:bg-surface-container transition-colors">
+<div>
+<p class="font-semibold text-body-lg">Permitir vista compacta</p>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only toggle-switch" type="checkbox"/>
+<div class="w-11 h-6 bg-surface-variant rounded-full transition-colors toggle-bg border border-outline-variant">
+<div class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform toggle-dot"></div>
+</div>
+</label>
+</div>
+<div class="p-4 flex items-center justify-between hover:bg-surface-container transition-colors">
+<div>
+<p class="font-semibold text-body-lg">Permitir vista amplia</p>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only toggle-switch" type="checkbox"/>
+<div class="w-11 h-6 bg-surface-variant rounded-full transition-colors toggle-bg border border-outline-variant">
+<div class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform toggle-dot"></div>
+</div>
+</label>
+</div>
+</div>
+<div class="flex items-center gap-2 p-3 bg-primary-container/10 rounded-lg text-primary">
+<span class="material-symbols-outlined text-[20px]">info</span>
+<p class="text-label-md">Las columnas opcionales pausan el progreso de la tarea mientras esté en ese estado.</p>
+</div>
+</section>
+<!-- Section 4: Notificaciones internas -->
+<section class="space-y-md">
+<div class="flex items-center gap-2 text-primary">
+<span class="material-symbols-outlined">notifications_active</span>
+<h3 class="text-headline-md font-headline-md">Notificaciones internas</h3>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-sm">
+<div class="p-4 bg-surface-container-lowest border border-outline-variant rounded-xl flex items-center justify-between">
+<span class="text-body-md font-medium">Activar notificaciones internas</span>
+<input checked="" class="rounded border-outline-variant text-primary focus:ring-primary" type="checkbox"/>
+</div>
+<div class="p-4 bg-surface-container-lowest border border-outline-variant rounded-xl flex items-center justify-between">
+<span class="text-body-md font-medium">Avisar 5 min. antes de un bloque</span>
+<input checked="" class="rounded border-outline-variant text-primary focus:ring-primary" type="checkbox"/>
+</div>
+<div class="p-4 bg-surface-container-lowest border border-outline-variant rounded-xl flex items-center justify-between">
+<span class="text-body-md font-medium">Mostrar resumen diario al entrar</span>
+<input class="rounded border-outline-variant text-primary focus:ring-primary" type="checkbox"/>
+</div>
+<div class="p-4 bg-surface-container-lowest border border-outline-variant rounded-xl flex items-center justify-between">
+<span class="text-body-md font-medium">Alertar cuando una tarea vence mañana</span>
+<input checked="" class="rounded border-outline-variant text-primary focus:ring-primary" type="checkbox"/>
+</div>
+<div class="p-4 bg-surface-container-lowest border border-outline-variant rounded-xl flex items-center justify-between">
+<span class="text-body-md font-medium">Alertar cuando una tarea vence hoy</span>
+<input checked="" class="rounded border-outline-variant text-primary focus:ring-primary" type="checkbox"/>
+</div>
+<div class="p-4 bg-surface-container-lowest border border-outline-variant rounded-xl flex items-center justify-between">
+<span class="text-body-md font-medium">Alertar cuando una tarea está vencida</span>
+<input checked="" class="rounded border-outline-variant text-primary focus:ring-primary" type="checkbox"/>
+</div>
+</div>
+</section>
+<!-- Section 5: Temporizador -->
+<section class="space-y-md">
+<div class="flex items-center gap-2 text-primary">
+<span class="material-symbols-outlined">timer</span>
+<h3 class="text-headline-md font-headline-md">Temporizador</h3>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 space-y-6">
+<div class="flex items-center justify-between">
+<div>
+<p class="font-semibold text-body-lg">Activar temporizador</p>
+<p class="text-label-md text-on-surface-variant">Habilita la cuenta regresiva en el encabezado de las tareas activas.</p>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only toggle-switch" type="checkbox"/>
+<div class="w-11 h-6 bg-surface-variant rounded-full transition-colors toggle-bg border border-outline-variant">
+<div class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform toggle-dot"></div>
+</div>
+</label>
+</div>
+<div class="space-y-3">
+<p class="text-label-md font-semibold text-on-surface-variant uppercase tracking-wider">Descanso predeterminado por hora</p>
+<div class="flex flex-wrap gap-4">
+<label class="flex items-center gap-2 cursor-pointer group">
+<input class="text-primary focus:ring-primary border-outline-variant" name="break" type="radio"/>
+<span class="text-body-md group-hover:text-primary transition-colors">Sin descanso</span>
+</label>
+<label class="flex items-center gap-2 cursor-pointer group">
+<input checked="" class="text-primary focus:ring-primary border-outline-variant" name="break" type="radio"/>
+<span class="text-body-md group-hover:text-primary transition-colors">5 minutos</span>
+</label>
+<label class="flex items-center gap-2 cursor-pointer group">
+<input class="text-primary focus:ring-primary border-outline-variant" name="break" type="radio"/>
+<span class="text-body-md group-hover:text-primary transition-colors">10 minutos</span>
+</label>
+<label class="flex items-center gap-2 cursor-pointer group">
+<input class="text-primary focus:ring-primary border-outline-variant" name="break" type="radio"/>
+<span class="text-body-md group-hover:text-primary transition-colors">15 minutos</span>
+</label>
+</div>
+</div>
+<p class="text-body-md text-on-surface-variant italic">"El temporizador ayuda a ejecutar el trabajo, pero no modifica automáticamente la duración del bloque en calendario."</p>
+</div>
+</section>
+<!-- Section 6: Reglas de cards -->
+<section class="space-y-md">
+<div class="flex items-center gap-2 text-primary">
+<span class="material-symbols-outlined">gavel</span>
+<h3 class="text-headline-md font-headline-md">Reglas de cards</h3>
+</div>
+<div class="bg-surface-container border border-outline-variant rounded-xl p-4">
+<ul class="space-y-3">
+<li class="flex items-center gap-3 text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">lock</span>
+<span class="text-body-md">Una card terminada no se puede editar</span>
+</li>
+<li class="flex items-center gap-3 text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">lock</span>
+<span class="text-body-md">Una card archivada no se puede reabrir</span>
+</li>
+<li class="flex items-center gap-3 text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">lock</span>
+<span class="text-body-md">Una card no puede cambiar de proyecto</span>
+</li>
+<li class="flex items-center gap-3 text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">lock</span>
+<span class="text-body-md">Una card sencilla no puede convertirse en compleja</span>
+</li>
+<li class="flex items-center gap-3 text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">lock</span>
+<span class="text-body-md">Una card compleja no puede convertirse en sencilla</span>
+</li>
+</ul>
+</div>
+</section>
+<!-- Footer Buttons -->
+<footer class="pt-8 border-t border-outline-variant flex justify-between items-center pb-xl">
+<button class="px-6 py-2.5 border border-outline-variant text-on-surface-variant rounded-xl font-semibold hover:bg-surface-container-high transition-all active:scale-[0.98]">
+                    Restaurar valores por defecto
+                </button>
+<div class="flex gap-4">
+<button class="px-6 py-2.5 bg-surface-container-high text-on-surface rounded-xl font-semibold hover:bg-surface-container-highest transition-all">
+                        Cancelar
+                    </button>
+<button class="px-8 py-2.5 bg-primary text-on-primary rounded-xl font-semibold shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-all active:scale-[0.98]">
+                        Guardar cambios
+                    </button>
+</div>
+</footer>
+</div>
+</main>
+<!-- Floating Atmosphere Elements -->
+<div class="fixed top-0 left-0 w-full h-full pointer-events-none -z-10 overflow-hidden opacity-20">
+<div class="absolute top-[10%] right-[5%] w-96 h-96 bg-primary/10 blur-[120px] rounded-full"></div>
+<div class="absolute bottom-[20%] left-[20%] w-64 h-64 bg-secondary/10 blur-[100px] rounded-full"></div>
+</div>
+<script>
+        // Micro-interactions for toggles and inputs
+        document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const parent = this.closest('.bg-surface-container-lowest');
+                if(parent) {
+                    parent.style.transform = 'scale(1.005)';
+                    setTimeout(() => parent.style.transform = 'scale(1)', 150);
+                }
+            });
+        });
+
+        // Simple color preview sync
+        const primaryColorInput = document.querySelector('input[value="#1F108E"]');
+        const previewPrimary = document.querySelector('.w-2.h-2.rounded-full.bg-primary');
+        const previewButton = document.querySelector('.px-3.py-1.bg-primary');
+
+        primaryColorInput?.addEventListener('input', (e) => {
+            const color = e.target.value;
+            if (/^#[0-9A-F]{6}$/i.test(color)) {
+                previewPrimary.style.backgroundColor = color;
+                previewButton.style.backgroundColor = color;
+            }
+        });
+    </script>
+</body></html>

@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+
+<html lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ZenFlow - Backlog</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary": "#ffffff",
+                        "on-background": "#1b1b22",
+                        "surface": "#fcf8ff",
+                        "on-tertiary-fixed-variant": "#7a3003",
+                        "on-surface-variant": "#464553",
+                        "error": "#ba1a1a",
+                        "on-tertiary": "#ffffff",
+                        "primary-fixed-dim": "#c3c0ff",
+                        "on-error": "#ffffff",
+                        "on-tertiary-fixed": "#351000",
+                        "secondary-fixed-dim": "#3cddc7",
+                        "on-secondary-container": "#007165",
+                        "error-container": "#ffdad6",
+                        "surface-container": "#f0ecf6",
+                        "primary-fixed": "#e2dfff",
+                        "background": "#fcf8ff",
+                        "on-primary-container": "#a9a7ff",
+                        "tertiary-fixed-dim": "#ffb694",
+                        "on-tertiary-container": "#fe9562",
+                        "surface-container-lowest": "#ffffff",
+                        "outline": "#777584",
+                        "inverse-primary": "#c3c0ff",
+                        "primary-container": "#3730a3",
+                        "tertiary-container": "#752c00",
+                        "surface-container-highest": "#e4e1eb",
+                        "on-primary-fixed": "#0f0069",
+                        "on-primary-fixed-variant": "#3b35a7",
+                        "primary": "#1f108e",
+                        "on-primary": "#ffffff",
+                        "surface-tint": "#544fc0",
+                        "inverse-on-surface": "#f3eff9",
+                        "tertiary": "#511c00",
+                        "outline-variant": "#c8c4d5",
+                        "inverse-surface": "#303037",
+                        "surface-bright": "#fcf8ff",
+                        "secondary-container": "#62fae3",
+                        "surface-container-low": "#f6f2fc",
+                        "on-surface": "#1b1b22",
+                        "tertiary-fixed": "#ffdbcc",
+                        "surface-variant": "#e4e1eb",
+                        "on-error-container": "#93000a",
+                        "on-secondary-fixed": "#00201c",
+                        "surface-container-high": "#eae6f1",
+                        "on-secondary-fixed-variant": "#005047",
+                        "secondary": "#006b5f",
+                        "surface-dim": "#dcd8e3",
+                        "secondary-fixed": "#62fae3"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "md": "24px",
+                        "sm": "12px",
+                        "xl": "80px",
+                        "xs": "4px",
+                        "gutter": "24px",
+                        "margin-mobile": "16px",
+                        "margin-desktop": "40px",
+                        "base": "8px",
+                        "lg": "48px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "headline-xl-mobile": ["Inter"],
+                        "label-md": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "headline-xl": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "body-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "headline-xl-mobile": ["28px", { "lineHeight": "36px", "fontWeight": "700" }],
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "500" }],
+                        "label-sm": ["11px", { "lineHeight": "14px", "fontWeight": "600" }],
+                        "headline-xl": ["36px", { "lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-lg": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.015em", "fontWeight": "600" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.fill-icon {
+            font-variation-settings: 'FILL' 1, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        /* Custom Scrollbar for Kanban Columns */
+        .kanban-scroll::-webkit-scrollbar {
+            width: 4px;
+        }
+        .kanban-scroll::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .kanban-scroll::-webkit-scrollbar-thumb {
+            background-color: #c8c4d5;
+            border-radius: 4px;
+        }
+        
+        /* Subtle card hover effect matching style guidance */
+        .kanban-card {
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+        }
+        .kanban-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            transform: translateY(-1px);
+        }
+        
+        /* Priority specific side borders */
+        .priority-border-urgente { border-left: 4px solid #ba1a1a; }
+        .priority-border-alta { border-left: 4px solid #fe9562; }
+        .priority-border-media { border-left: 4px solid #1f108e; }
+        .priority-border-baja { border-left: 4px solid #006b5f; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body-md min-h-screen flex antialiased">
+<!-- SideNavBar -->
+<nav class="bg-surface-container-low dark:bg-surface-container-lowest h-screen w-64 fixed left-0 top-0 border-r border-outline-variant dark:border-outline z-20 flex flex-col hidden md:flex">
+<div class="flex flex-col h-full p-4 gap-2">
+<!-- Header -->
+<div class="flex items-center gap-3 px-2 py-4 mb-4">
+<div class="w-10 h-10 rounded-lg bg-primary-container flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-on-primary-container">psychiatry</span>
+</div>
+<div class="flex flex-col">
+<span class="text-headline-lg font-headline-lg font-bold text-primary dark:text-primary-fixed-dim">ZenFlow</span>
+<span class="font-label-md text-label-md text-on-surface-variant">Productivity Suite</span>
+</div>
+</div>
+<!-- CTA -->
+<button class="bg-primary text-on-primary rounded-lg py-2 px-4 flex items-center justify-center gap-2 font-label-md mb-6 hover:opacity-90 transition-opacity w-full shadow-sm">
+<span class="material-symbols-outlined" style="font-size: 18px;">add</span>
+                + Agregar tarea
+            </button>
+<!-- Navigation Links -->
+<div class="flex flex-col gap-1 flex-1">
+<a class="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-colors font-body-md group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">dashboard</span>
+                    Dashboard
+                </a>
+<!-- Active Item -->
+<a class="flex items-center gap-3 px-4 py-2 bg-primary-container text-on-primary-container rounded-lg font-semibold font-body-md shadow-sm" href="#">
+<span class="material-symbols-outlined fill-icon">inventory_2</span>
+                    Backlog
+                </a>
+<a class="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-colors font-body-md group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">calendar_view_week</span>
+                    To-do semanal
+                </a>
+<div class="h-px bg-outline-variant/30 my-2 mx-2"></div>
+<a class="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-colors font-body-md group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">corporate_fare</span>
+                    Organizaciones
+                </a>
+<a class="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-colors font-body-md group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">account_tree</span>
+                    Proyectos
+                </a>
+<div class="h-px bg-outline-variant/30 my-2 mx-2"></div>
+<a class="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-colors font-body-md group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">archive</span>
+                    Archivo
+                </a>
+<a class="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-colors font-body-md group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">delete</span>
+                    Papelera
+                </a>
+</div>
+<!-- Bottom Settings -->
+<div class="mt-auto">
+<a class="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-colors font-body-md group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">settings</span>
+                    Configuración
+                </a>
+</div>
+</div>
+</nav>
+<!-- Main Content Area -->
+<div class="flex-1 flex flex-col md:ml-64 min-h-screen relative">
+<!-- TopAppBar -->
+<header class="bg-surface/80 backdrop-blur-md border-b border-outline-variant h-16 fixed top-0 right-0 left-0 md:left-64 z-10 shadow-sm flex items-center justify-between px-8">
+<div class="flex items-center gap-6">
+<!-- Mobile Menu Button -->
+<button class="md:hidden p-2 text-on-surface-variant hover:bg-surface-container rounded-full">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<!-- View Controls / Breadcrumbs -->
+<div class="hidden md:flex items-center gap-2 text-on-surface-variant font-body-md">
+<span class="font-semibold text-on-surface">Backlog</span>
+<span class="material-symbols-outlined text-sm opacity-50">chevron_right</span>
+<span>All Projects</span>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<!-- Actions -->
+<button class="p-2 text-on-surface-variant hover:bg-surface-container rounded-full transition-colors hidden sm:block">
+<span class="material-symbols-outlined">search</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:bg-surface-container rounded-full transition-colors hidden sm:block">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:bg-surface-container rounded-full transition-colors hidden sm:block">
+<span class="material-symbols-outlined">dark_mode</span>
+</button>
+<div class="w-px h-6 bg-outline-variant/50 mx-2 hidden sm:block"></div>
+<!-- Profile Avatar -->
+<div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center border border-outline-variant overflow-hidden cursor-pointer">
+<img alt="User avatar" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAnRPRiOO8pvu5-zVMKvtgLOZ6WmRc9s6bOjXQedezzbHuovLbhJEfzIWCiIVPk2Skxm4WFKhA-BsmufmDeY3QZK_ksGtsccZCftVLo4XJ-Jnj1ChNiHDzWXEoGNyzArojRmsr2JN-bOjyNEf1G4BSaWcO8u5YI5jEb5uTo-QecnPRVT2Jo6PthanSuqJdnosFJ1r8zJjyL05sAFaW2OEVv5dzBPr93dstEk3pN390lLkGB4fvzwnXx4c0xVRjsU8U24yokCuGZS2kF"/>
+</div>
+</div>
+</header>
+<!-- Canvas -->
+<main class="flex-1 pt-24 px-6 md:px-10 pb-10 flex flex-col overflow-hidden max-w-[1600px] w-full mx-auto">
+<!-- Header Controls Area -->
+<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 shrink-0">
+<div>
+<h1 class="font-headline-xl text-headline-xl text-on-surface">Backlog Kanban</h1>
+<p class="font-body-md text-on-surface-variant mt-1">Manage and track all project tasks</p>
+</div>
+<div class="flex items-center gap-3 self-end sm:self-auto">
+<!-- Filters/Grouping -->
+<div class="flex items-center bg-surface-container-low rounded-lg p-1 border border-outline-variant">
+<button class="px-3 py-1.5 text-label-md font-label-md rounded-md bg-surface shadow-sm text-on-surface border border-outline-variant/50 flex items-center gap-2">
+<span class="material-symbols-outlined" style="font-size: 16px;">view_column</span>
+                            Board
+                        </button>
+<button class="px-3 py-1.5 text-label-md font-label-md rounded-md text-on-surface-variant hover:bg-surface-container flex items-center gap-2 transition-colors">
+<span class="material-symbols-outlined" style="font-size: 16px;">table_rows</span>
+                            List
+                        </button>
+</div>
+<button class="flex items-center gap-2 px-3 py-1.5 border border-outline-variant rounded-lg text-label-md font-label-md text-on-surface-variant hover:bg-surface-container-low transition-colors bg-surface">
+<span class="material-symbols-outlined" style="font-size: 16px;">filter_list</span>
+                        Filter
+                    </button>
+</div>
+</div>
+<!-- Kanban Board Area -->
+<div class="flex-1 flex gap-6 overflow-x-auto pb-4 -mx-2 px-2">
+<!-- Column 1: Tareas sin iniciar -->
+<div class="flex flex-col min-w-[320px] max-w-[360px] flex-1 bg-surface-container-lowest rounded-xl border border-outline-variant/50 p-4 h-full">
+<div class="flex items-center justify-between mb-4 px-1">
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-outline"></div>
+<h2 class="font-headline-md text-body-lg font-semibold text-on-surface">Tareas sin iniciar</h2>
+<span class="bg-surface-container text-on-surface-variant px-2 py-0.5 rounded-full text-label-sm font-label-sm ml-1">3</span>
+</div>
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined" style="font-size: 20px;">more_horiz</span>
+</button>
+</div>
+<div class="flex flex-col gap-3 overflow-y-auto kanban-scroll pr-1 flex-1">
+<!-- Card 1 (Urgente) -->
+<div class="kanban-card bg-surface rounded-lg border border-outline-variant/60 p-4 priority-border-urgente flex flex-col gap-3 cursor-pointer">
+<div class="flex justify-between items-start gap-2">
+<div class="flex flex-wrap gap-1.5">
+<span class="text-[10px] font-semibold tracking-wider uppercase px-1.5 py-0.5 rounded bg-error-container text-on-error-container">Urgente</span>
+<span class="text-[10px] font-medium px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface-variant">Acme Corp</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant/50" style="font-size: 16px;">more_vert</span>
+</div>
+<h3 class="font-body-md font-semibold text-on-surface leading-tight">Migración de Base de Datos a PostgreSQL</h3>
+<div class="flex items-center justify-between mt-2 pt-3 border-t border-outline-variant/30">
+<div class="flex items-center gap-1.5 text-on-surface-variant text-label-md">
+<span class="material-symbols-outlined" style="font-size: 14px;">schedule</span>
+<span>0/12h</span>
+</div>
+<div class="w-6 h-6 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container text-[10px] font-bold border border-outline-variant/20">
+                                    AM
+                                </div>
+</div>
+</div>
+<!-- Card 2 (Alta) -->
+<div class="kanban-card bg-surface rounded-lg border border-outline-variant/60 p-4 priority-border-alta flex flex-col gap-3 cursor-pointer">
+<div class="flex justify-between items-start gap-2">
+<div class="flex flex-wrap gap-1.5">
+<span class="text-[10px] font-semibold tracking-wider uppercase px-1.5 py-0.5 rounded bg-tertiary-container/20 text-on-tertiary-container">Alta</span>
+<span class="text-[10px] font-medium px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface-variant">Zenith App</span>
+</div>
+</div>
+<h3 class="font-body-md font-semibold text-on-surface leading-tight">Diseño de Onboarding Flow</h3>
+<div class="flex items-center justify-between mt-2 pt-3 border-t border-outline-variant/30">
+<div class="flex items-center gap-1.5 text-on-surface-variant text-label-md">
+<span class="material-symbols-outlined" style="font-size: 14px;">schedule</span>
+<span>0/8h</span>
+</div>
+</div>
+</div>
+<!-- Add Task Button -->
+<button class="flex items-center justify-center gap-2 py-3 rounded-lg border border-dashed border-outline-variant/80 text-on-surface-variant hover:bg-surface-container-low transition-colors text-label-md font-label-md mt-1">
+<span class="material-symbols-outlined" style="font-size: 18px;">add</span>
+                            Agregar tarea
+                        </button>
+</div>
+</div>
+<!-- Column 2: Tareas en proceso -->
+<div class="flex flex-col min-w-[320px] max-w-[360px] flex-1 bg-surface-container-lowest rounded-xl border border-outline-variant/50 p-4 h-full">
+<div class="flex items-center justify-between mb-4 px-1">
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-primary"></div>
+<h2 class="font-headline-md text-body-lg font-semibold text-on-surface">Tareas en proceso</h2>
+<span class="bg-primary-container text-on-primary-container px-2 py-0.5 rounded-full text-label-sm font-label-sm ml-1">2</span>
+</div>
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined" style="font-size: 20px;">more_horiz</span>
+</button>
+</div>
+<div class="flex flex-col gap-3 overflow-y-auto kanban-scroll pr-1 flex-1">
+<!-- Card 3 (Alta - Complex) -->
+<div class="kanban-card bg-surface rounded-lg border border-outline-variant/60 p-4 priority-border-alta flex flex-col gap-3 cursor-pointer">
+<div class="flex justify-between items-start gap-2">
+<div class="flex flex-wrap gap-1.5">
+<span class="text-[10px] font-semibold tracking-wider uppercase px-1.5 py-0.5 rounded bg-tertiary-container/20 text-on-tertiary-container">Alta</span>
+<span class="text-[10px] font-medium px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface-variant">Global Site</span>
+</div>
+</div>
+<h3 class="font-body-md font-semibold text-on-surface leading-tight">Implementar Sistema de Autenticación JWT</h3>
+<!-- Progress Bar for complex card -->
+<div class="flex flex-col gap-1 mt-1">
+<div class="flex justify-between text-[10px] text-on-surface-variant font-medium">
+<span>Subtareas (3/5)</span>
+<span>60%</span>
+</div>
+<div class="w-full bg-surface-container-highest rounded-full h-1.5 overflow-hidden">
+<div class="bg-primary h-1.5 rounded-full" style="width: 60%"></div>
+</div>
+</div>
+<div class="flex items-center justify-between mt-2 pt-3 border-t border-outline-variant/30">
+<div class="flex items-center gap-1.5 text-on-surface-variant text-label-md">
+<span class="material-symbols-outlined text-primary" style="font-size: 14px;">schedule</span>
+<span class="font-medium text-on-surface">14h / 20h</span>
+</div>
+<div class="flex -space-x-2">
+<div class="w-6 h-6 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container text-[10px] font-bold border border-surface z-10">
+                                        JD
+                                    </div>
+<div class="w-6 h-6 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container text-[10px] font-bold border border-surface z-0">
+                                        +1
+                                    </div>
+</div>
+</div>
+</div>
+<!-- Card 4 (Media) -->
+<div class="kanban-card bg-surface rounded-lg border border-outline-variant/60 p-4 priority-border-media flex flex-col gap-3 cursor-pointer">
+<div class="flex justify-between items-start gap-2">
+<div class="flex flex-wrap gap-1.5">
+<span class="text-[10px] font-semibold tracking-wider uppercase px-1.5 py-0.5 rounded bg-primary-container/30 text-primary">Media</span>
+<span class="text-[10px] font-medium px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface-variant">Acme Corp</span>
+</div>
+</div>
+<h3 class="font-body-md font-semibold text-on-surface leading-tight">Revisión de Copywriting Landing Page</h3>
+<div class="flex items-center justify-between mt-2 pt-3 border-t border-outline-variant/30">
+<div class="flex items-center gap-1.5 text-on-surface-variant text-label-md">
+<span class="material-symbols-outlined text-primary" style="font-size: 14px;">schedule</span>
+<span class="font-medium text-on-surface">2h / 4h</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Column 3: Tareas terminadas -->
+<div class="flex flex-col min-w-[320px] max-w-[360px] flex-1 bg-surface-container-lowest rounded-xl border border-outline-variant/50 p-4 h-full">
+<div class="flex items-center justify-between mb-4 px-1">
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-secondary"></div>
+<h2 class="font-headline-md text-body-lg font-semibold text-on-surface">Tareas terminadas</h2>
+<span class="bg-surface-container text-on-surface-variant px-2 py-0.5 rounded-full text-label-sm font-label-sm ml-1">1</span>
+</div>
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined" style="font-size: 20px;">more_horiz</span>
+</button>
+</div>
+<div class="flex flex-col gap-3 overflow-y-auto kanban-scroll pr-1 flex-1">
+<!-- Card 5 (Baja - Done) -->
+<div class="kanban-card bg-surface/50 rounded-lg border border-outline-variant/40 p-4 priority-border-baja flex flex-col gap-3 cursor-pointer opacity-80 hover:opacity-100">
+<div class="flex justify-between items-start gap-2">
+<div class="flex flex-wrap gap-1.5">
+<span class="text-[10px] font-semibold tracking-wider uppercase px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface-variant line-through decoration-on-surface-variant/50">Baja</span>
+<span class="text-[10px] font-medium px-1.5 py-0.5 rounded bg-surface-container text-on-surface-variant">Internal</span>
+</div>
+<span class="material-symbols-outlined text-secondary" style="font-size: 16px;">check_circle</span>
+</div>
+<h3 class="font-body-md text-on-surface-variant leading-tight line-through decoration-outline-variant">Actualizar dependencias de NPM</h3>
+<div class="flex items-center justify-between mt-2 pt-3 border-t border-outline-variant/30">
+<div class="flex items-center gap-1.5 text-on-surface-variant text-label-md">
+<span class="material-symbols-outlined" style="font-size: 14px;">check</span>
+<span>1.5h / 2h</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Optional Column: En Espera (Faded out slightly to indicate optional/blocked status) -->
+<div class="flex flex-col min-w-[320px] max-w-[360px] flex-1 bg-surface-container-low/50 rounded-xl border border-dashed border-outline-variant/70 p-4 h-full">
+<div class="flex items-center justify-between mb-4 px-1 opacity-70">
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-tertiary-container"></div>
+<h2 class="font-headline-md text-body-lg font-semibold text-on-surface">En espera</h2>
+</div>
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined" style="font-size: 20px;">more_horiz</span>
+</button>
+</div>
+<div class="flex flex-col gap-3 overflow-y-auto kanban-scroll pr-1 flex-1 opacity-80">
+<div class="flex flex-col items-center justify-center h-32 text-center text-on-surface-variant px-4">
+<span class="material-symbols-outlined mb-2" style="font-size: 24px; opacity: 0.5;">pause_circle</span>
+<p class="text-label-md font-label-md">No hay tareas bloqueadas o en espera actualmente.</p>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

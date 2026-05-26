@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ZenFlow - Detalle de Tarea</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary": "#ffffff",
+                        "on-background": "#1b1b22",
+                        "surface": "#fcf8ff",
+                        "on-tertiary-fixed-variant": "#7a3003",
+                        "on-surface-variant": "#464553",
+                        "error": "#ba1a1a",
+                        "on-tertiary": "#ffffff",
+                        "primary-fixed-dim": "#c3c0ff",
+                        "on-error": "#ffffff",
+                        "on-tertiary-fixed": "#351000",
+                        "secondary-fixed-dim": "#3cddc7",
+                        "on-secondary-container": "#007165",
+                        "error-container": "#ffdad6",
+                        "surface-container": "#f0ecf6",
+                        "primary-fixed": "#e2dfff",
+                        "background": "#fcf8ff",
+                        "on-primary-container": "#a9a7ff",
+                        "tertiary-fixed-dim": "#ffb694",
+                        "on-tertiary-container": "#fe9562",
+                        "surface-container-lowest": "#ffffff",
+                        "outline": "#777584",
+                        "inverse-primary": "#c3c0ff",
+                        "primary-container": "#3730a3",
+                        "tertiary-container": "#752c00",
+                        "surface-container-highest": "#e4e1eb",
+                        "on-primary-fixed": "#0f0069",
+                        "on-primary-fixed-variant": "#3b35a7",
+                        "primary": "#1f108e",
+                        "on-primary": "#ffffff",
+                        "surface-tint": "#544fc0",
+                        "inverse-on-surface": "#f3eff9",
+                        "tertiary": "#511c00",
+                        "outline-variant": "#c8c4d5",
+                        "inverse-surface": "#303037",
+                        "surface-bright": "#fcf8ff",
+                        "secondary-container": "#62fae3",
+                        "surface-container-low": "#f6f2fc",
+                        "on-surface": "#1b1b22",
+                        "tertiary-fixed": "#ffdbcc",
+                        "surface-variant": "#e4e1eb",
+                        "on-error-container": "#93000a",
+                        "on-secondary-fixed": "#00201c",
+                        "surface-container-high": "#eae6f1",
+                        "on-secondary-fixed-variant": "#005047",
+                        "secondary": "#006b5f",
+                        "surface-dim": "#dcd8e3",
+                        "secondary-fixed": "#62fae3"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "md": "24px",
+                        "sm": "12px",
+                        "xl": "80px",
+                        "xs": "4px",
+                        "gutter": "24px",
+                        "margin-mobile": "16px",
+                        "margin-desktop": "40px",
+                        "base": "8px",
+                        "lg": "48px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "headline-xl-mobile": ["Inter"],
+                        "label-md": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "headline-xl": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "body-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "headline-xl-mobile": ["28px", { "lineHeight": "36px", "fontWeight": "700" }],
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "500" }],
+                        "label-sm": ["11px", { "lineHeight": "14px", "fontWeight": "600" }],
+                        "headline-xl": ["36px", { "lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-lg": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.015em", "fontWeight": "600" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .fill-icon {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        /* Hide scrollbar for cleaner look like Notion */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #e4e1eb;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #c8c4d5;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md h-full flex overflow-hidden">
+<!-- Active Navigation Shell is SUPPRESSED as this is a focused Details/Modal view -->
+<!-- Main Canvas (Simulating a full-screen modal or detailed view) -->
+<main class="flex-1 flex flex-col h-full overflow-hidden bg-surface-container-lowest">
+<!-- Header Actions (Close / Breadcrumbs) -->
+<header class="flex-none flex items-center justify-between px-margin-desktop py-md border-b border-surface-container">
+<div class="flex items-center gap-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-sm cursor-pointer hover:text-primary transition-colors">home</span>
+<span class="text-on-surface-variant font-label-md">/</span>
+<span class="cursor-pointer hover:text-primary transition-colors font-body-md">Projects</span>
+<span class="text-on-surface-variant font-label-md">/</span>
+<span class="cursor-pointer hover:text-primary transition-colors font-body-md">Website Redesign</span>
+<span class="text-on-surface-variant font-label-md">/</span>
+<span class="font-body-md text-on-background font-medium">ZEN-402</span>
+</div>
+<div class="flex items-center gap-md">
+<button class="flex items-center gap-xs px-sm py-xs text-on-surface-variant hover:bg-surface-container rounded-md transition-colors font-label-md">
+<span class="material-symbols-outlined text-[18px]">share</span>
+                    Share
+                </button>
+<button class="flex items-center gap-xs px-sm py-xs text-on-surface-variant hover:bg-surface-container rounded-md transition-colors font-label-md">
+<span class="material-symbols-outlined text-[18px]">more_horiz</span>
+</button>
+<div class="w-px h-5 bg-outline-variant mx-xs"></div>
+<button class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-surface-container transition-colors text-on-surface-variant">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+</header>
+<!-- Scrollable Content Area -->
+<div class="flex-1 overflow-y-auto px-margin-desktop py-lg max-w-5xl mx-auto w-full">
+<!-- Title Section -->
+<div class="mb-lg">
+<div class="flex items-center gap-sm mb-sm">
+<div class="w-6 h-6 rounded bg-primary-container text-on-primary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-[16px] fill-icon">check_circle</span>
+</div>
+<span class="font-label-md text-on-surface-variant uppercase tracking-wider">Feature</span>
+</div>
+<h1 class="font-headline-xl text-on-background mb-md">Implement High-Fidelity Details Modal</h1>
+<!-- Quick Meta Stats Bento -->
+<div class="grid grid-cols-4 gap-sm">
+<div class="p-sm rounded-lg border border-surface-container hover:shadow-[0_4px_12px_rgba(0,0,0,0.05)] transition-shadow bg-surface-container-lowest flex items-center gap-sm cursor-pointer group">
+<span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors">sync</span>
+<div>
+<div class="font-label-sm text-on-surface-variant">Status</div>
+<div class="font-body-md text-on-background font-medium">In Progress</div>
+</div>
+</div>
+<div class="p-sm rounded-lg border border-surface-container hover:shadow-[0_4px_12px_rgba(0,0,0,0.05)] transition-shadow bg-surface-container-lowest flex items-center gap-sm cursor-pointer group">
+<img alt="Assignee Avatar" class="w-8 h-8 rounded-full border border-surface-container-high" data-alt="A small, professional circular avatar portrait of a modern tech worker against a light background, used for an assignee icon in a minimalist UI." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAQcMi4KR0Axw5JGsRDXf5Y-C2iGXZsff_-UdAftEHVEa_u8wTKgM3fQQXqphByQN_hOOzeMHzKpYPI5LaXqpS1jHFLGMppersOipIJrd22uUaSVV5fpMQKn0kvZwf3zz2PrgA2catFKUa6xyP5z6LZCT98UDGaOV6FsV1rso3Mf-snQQtx6xE9Ml7AuwkRhhUlW6DYt8oT7d-94TV4r8ks-SQEE0AAB0mYOazVziMIwye4dWPU8whdt-koL-nn5NvhfuCh2S_2lw-S"/>
+<div>
+<div class="font-label-sm text-on-surface-variant">Assignee</div>
+<div class="font-body-md text-on-background font-medium">Alex Rivera</div>
+</div>
+</div>
+<div class="p-sm rounded-lg border border-surface-container hover:shadow-[0_4px_12px_rgba(0,0,0,0.05)] transition-shadow bg-surface-container-lowest flex items-center gap-sm cursor-pointer group">
+<span class="material-symbols-outlined text-outline group-hover:text-tertiary-container transition-colors">flag</span>
+<div>
+<div class="font-label-sm text-on-surface-variant">Priority</div>
+<div class="font-body-md text-tertiary-container font-medium flex items-center gap-xs">
+                                High <span class="w-2 h-2 rounded-full bg-tertiary-container inline-block"></span>
+</div>
+</div>
+</div>
+<div class="p-sm rounded-lg border border-surface-container hover:shadow-[0_4px_12px_rgba(0,0,0,0.05)] transition-shadow bg-surface-container-lowest flex items-center gap-sm cursor-pointer group">
+<span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors">calendar_today</span>
+<div>
+<div class="font-label-sm text-on-surface-variant">Due Date</div>
+<div class="font-body-md text-on-background font-medium">Oct 24, 2023</div>
+</div>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-12 gap-xl">
+<!-- Main Content Column -->
+<div class="col-span-8 flex flex-col gap-xl">
+<!-- Description Notes -->
+<section>
+<h2 class="font-headline-md text-on-background flex items-center gap-sm mb-md pb-xs border-b border-surface-container">
+<span class="material-symbols-outlined text-outline">description</span>
+                            Notes
+                        </h2>
+<div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-md hover:border-outline transition-colors group">
+<div class="font-body-lg text-on-surface-variant leading-relaxed">
+<p class="mb-sm">We need to implement a highly detailed modal view for complex tasks that mimics the Notion page structure. It should feel robust but not cluttered.</p>
+<ul class="list-disc pl-md space-y-xs mb-sm">
+<li>Ensure typography uses the Inter font stack strictly.</li>
+<li>Implement ambient shadows on hover for interactive elements.</li>
+<li>Read-only states should visually recede (lower contrast).</li>
+</ul>
+<p><strong>Requirement:</strong> Ensure fluid transition animations when opening the modal from the Kanban board.</p>
+</div>
+<div class="mt-md text-right opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="text-primary font-label-md hover:underline">Edit Notes</button>
+</div>
+</div>
+</section>
+<!-- Subtasks List -->
+<section>
+<div class="flex items-center justify-between mb-md pb-xs border-b border-surface-container">
+<h2 class="font-headline-md text-on-background flex items-center gap-sm">
+<span class="material-symbols-outlined text-outline">checklist</span>
+                                Subtasks
+                            </h2>
+<button class="text-primary font-label-md hover:underline flex items-center gap-xs">
+<span class="material-symbols-outlined text-[16px]">add</span> Add Subtask
+                            </button>
+</div>
+<div class="flex flex-col gap-xs">
+<!-- Completed Task (Read Only vibe) -->
+<div class="flex items-center justify-between p-sm rounded-lg hover:bg-surface-container-low transition-colors group opacity-60">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary fill-icon">check_box</span>
+<span class="font-body-md line-through text-on-surface-variant">Design structural wireframes</span>
+</div>
+<div class="flex items-center gap-md opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="font-label-sm text-on-surface-variant">2.5h logged</span>
+</div>
+</div>
+<!-- Active Task -->
+<div class="flex items-center justify-between p-sm rounded-lg hover:bg-surface-container-low transition-colors group">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-outline cursor-pointer hover:text-primary transition-colors">check_box_outline_blank</span>
+<span class="font-body-md text-on-background font-medium">Implement Tailwind layout</span>
+</div>
+<div class="flex items-center gap-md opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="px-sm py-xs border border-outline-variant rounded text-on-surface-variant font-label-sm hover:border-primary hover:text-primary transition-colors" onclick="document.getElementById('time-modal').classList.remove('hidden')">
+                                        Log Hours
+                                    </button>
+</div>
+</div>
+<!-- Active Task -->
+<div class="flex items-center justify-between p-sm rounded-lg hover:bg-surface-container-low transition-colors group">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-outline cursor-pointer hover:text-primary transition-colors">check_box_outline_blank</span>
+<span class="font-body-md text-on-background font-medium">Wire up interaction scripts</span>
+</div>
+<div class="flex items-center gap-md opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="px-sm py-xs border border-outline-variant rounded text-on-surface-variant font-label-sm hover:border-primary hover:text-primary transition-colors">
+                                        Log Hours
+                                    </button>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- Sidebar Column -->
+<div class="col-span-4 flex flex-col gap-lg">
+<!-- Progress & Time Tracking -->
+<section class="bg-surface-container-low rounded-xl p-md border border-surface-container shadow-sm">
+<h3 class="font-headline-md text-on-background mb-md">Tracking</h3>
+<!-- Advance Bar -->
+<div class="mb-md">
+<div class="flex justify-between items-center mb-xs">
+<span class="font-label-md text-on-surface-variant">Advance</span>
+<span class="font-label-sm text-primary font-bold">33%</span>
+</div>
+<div class="h-2 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full" style="width: 33%;"></div>
+</div>
+</div>
+<!-- Est vs Real -->
+<div class="space-y-sm">
+<div class="flex justify-between items-center">
+<span class="font-body-md text-on-surface-variant flex items-center gap-xs">
+<span class="material-symbols-outlined text-[16px]">hourglass_empty</span> Estimated
+                                </span>
+<span class="font-body-md text-on-background font-medium">12.0 hrs</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="font-body-md text-on-surface-variant flex items-center gap-xs">
+<span class="material-symbols-outlined text-[16px]">timer</span> Logged
+                                </span>
+<span class="font-body-md text-on-background font-medium">2.5 hrs</span>
+</div>
+<!-- Small progress for time -->
+<div class="h-1 w-full bg-surface-container-highest rounded-full overflow-hidden mt-xs">
+<div class="h-full bg-secondary rounded-full" style="width: 20%;"></div>
+</div>
+</div>
+</section>
+<!-- Links & References -->
+<section>
+<h3 class="font-headline-md text-on-background mb-sm border-b border-surface-container pb-xs">Resources</h3>
+<div class="flex flex-col gap-xs">
+<a class="flex items-center gap-sm p-sm rounded-lg hover:bg-surface-container-low transition-colors group" href="#">
+<span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors text-[20px]">design_services</span>
+<span class="font-body-md text-on-surface-variant group-hover:text-on-background transition-colors">Figma Prototype</span>
+<span class="material-symbols-outlined text-[14px] text-outline ml-auto opacity-0 group-hover:opacity-100 transition-opacity">open_in_new</span>
+</a>
+<a class="flex items-center gap-sm p-sm rounded-lg hover:bg-surface-container-low transition-colors group" href="#">
+<span class="material-symbols-outlined text-outline group-hover:text-error transition-colors text-[20px]">play_circle</span>
+<span class="font-body-md text-on-surface-variant group-hover:text-on-background transition-colors">UX Review Recording</span>
+<span class="material-symbols-outlined text-[14px] text-outline ml-auto opacity-0 group-hover:opacity-100 transition-opacity">open_in_new</span>
+</a>
+<a class="flex items-center gap-sm p-sm rounded-lg hover:bg-surface-container-low transition-colors group" href="#">
+<span class="material-symbols-outlined text-outline group-hover:text-secondary transition-colors text-[20px]">article</span>
+<span class="font-body-md text-on-surface-variant group-hover:text-on-background transition-colors">API Documentation</span>
+<span class="material-symbols-outlined text-[14px] text-outline ml-auto opacity-0 group-hover:opacity-100 transition-opacity">open_in_new</span>
+</a>
+</div>
+</section>
+<!-- History Log -->
+<section>
+<h3 class="font-headline-md text-on-background mb-sm border-b border-surface-container pb-xs">Activity</h3>
+<div class="relative pl-sm border-l-2 border-surface-container-highest space-y-md py-sm">
+<div class="relative">
+<div class="absolute -left-[13px] top-1 w-2 h-2 rounded-full bg-outline-variant"></div>
+<div class="font-body-md text-on-background">Priority changed to <span class="text-tertiary-container font-medium">High</span></div>
+<div class="font-label-sm text-on-surface-variant mt-xs">Alex Rivera • 2 hours ago</div>
+</div>
+<div class="relative">
+<div class="absolute -left-[13px] top-1 w-2 h-2 rounded-full bg-outline-variant"></div>
+<div class="font-body-md text-on-background">Status changed to <span class="font-medium">In Progress</span></div>
+<div class="font-label-sm text-on-surface-variant mt-xs">Alex Rivera • 1 day ago</div>
+</div>
+<div class="relative">
+<div class="absolute -left-[13px] top-1 w-2 h-2 rounded-full bg-outline-variant"></div>
+<div class="font-body-md text-on-background">Card created</div>
+<div class="font-label-sm text-on-surface-variant mt-xs">System • Oct 10, 2023</div>
+</div>
+</div>
+</section>
+</div>
+</div>
+</div>
+</main>
+<!-- Overlay Modal for Logging Hours -->
+<div class="hidden fixed inset-0 z-50 flex items-center justify-center bg-inverse-surface/40 backdrop-blur-sm" id="time-modal">
+<div class="bg-surface-container-lowest w-full max-w-sm rounded-xl shadow-[0_8px_32px_rgba(0,0,0,0.1)] p-md transform transition-all">
+<div class="flex justify-between items-center mb-md border-b border-surface-container pb-sm">
+<h3 class="font-headline-md text-on-background">Log Hours</h3>
+<button class="text-outline hover:text-on-background transition-colors" onclick="document.getElementById('time-modal').classList.add('hidden')">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+</div>
+<div class="space-y-md">
+<div>
+<label class="block font-label-md text-on-surface-variant mb-xs">Subtask</label>
+<div class="font-body-md text-on-background bg-surface-container-low px-sm py-xs rounded border border-surface-container">Implement Tailwind layout</div>
+</div>
+<div>
+<label class="block font-label-md text-on-surface-variant mb-xs">Hours spent</label>
+<input class="w-full bg-surface-container-lowest border border-outline-variant rounded-md px-sm py-xs font-body-md text-on-background focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-shadow" placeholder="e.g. 1.5" step="0.5" type="number"/>
+</div>
+<div>
+<label class="block font-label-md text-on-surface-variant mb-xs">Note (Optional)</label>
+<textarea class="w-full bg-surface-container-lowest border border-outline-variant rounded-md px-sm py-xs font-body-md text-on-background focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-shadow resize-none" rows="2"></textarea>
+</div>
+</div>
+<div class="mt-lg flex justify-end gap-sm">
+<button class="px-md py-xs font-label-md text-on-surface-variant hover:bg-surface-container rounded-md transition-colors" onclick="document.getElementById('time-modal').classList.add('hidden')">Cancel</button>
+<button class="px-md py-xs font-label-md bg-primary text-on-primary hover:bg-surface-tint rounded-md transition-colors shadow-sm">Save Log</button>
+</div>
+</div>
+</div>
+</body></html>

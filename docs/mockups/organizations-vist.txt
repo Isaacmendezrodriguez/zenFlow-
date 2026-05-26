@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ZenFlow Organizations</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "tertiary-fixed-dim": "#ffb694",
+                      "secondary-fixed-dim": "#3cddc7",
+                      "on-background": "#1b1b22",
+                      "on-surface-variant": "#464553",
+                      "on-error-container": "#93000a",
+                      "surface-variant": "#e4e1eb",
+                      "surface-tint": "#544fc0",
+                      "surface-container-high": "#eae6f1",
+                      "surface-bright": "#fcf8ff",
+                      "on-primary": "#ffffff",
+                      "secondary-container": "#62fae3",
+                      "on-tertiary": "#ffffff",
+                      "surface-container-highest": "#e4e1eb",
+                      "on-secondary-fixed-variant": "#005047",
+                      "surface": "#fcf8ff",
+                      "outline": "#777584",
+                      "primary-container": "#3730a3",
+                      "on-surface": "#1b1b22",
+                      "primary": "#1f108e",
+                      "outline-variant": "#c8c4d5",
+                      "surface-container-low": "#f6f2fc",
+                      "on-tertiary-container": "#fe9562",
+                      "secondary-fixed": "#62fae3",
+                      "inverse-primary": "#c3c0ff",
+                      "tertiary": "#511c00",
+                      "error": "#ba1a1a",
+                      "secondary": "#006b5f",
+                      "on-tertiary-fixed-variant": "#7a3003",
+                      "inverse-surface": "#303037",
+                      "tertiary-fixed": "#ffdbcc",
+                      "on-error": "#ffffff",
+                      "on-secondary-fixed": "#00201c",
+                      "tertiary-container": "#752c00",
+                      "surface-container-lowest": "#ffffff",
+                      "on-secondary-container": "#007165",
+                      "surface-container": "#f0ecf6",
+                      "primary-fixed": "#e2dfff",
+                      "surface-dim": "#dcd8e3",
+                      "primary-fixed-dim": "#c3c0ff",
+                      "on-primary-container": "#a9a7ff",
+                      "error-container": "#ffdad6",
+                      "on-secondary": "#ffffff",
+                      "inverse-on-surface": "#f3eff9",
+                      "background": "#fcf8ff",
+                      "on-primary-fixed-variant": "#3b35a7",
+                      "on-primary-fixed": "#0f0069",
+                      "on-tertiary-fixed": "#351000"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "xl": "80px",
+                      "sm": "12px",
+                      "md": "24px",
+                      "lg": "48px",
+                      "margin-mobile": "16px",
+                      "base": "8px",
+                      "margin-desktop": "40px",
+                      "gutter": "24px",
+                      "xs": "4px"
+              },
+              "fontFamily": {
+                      "label-sm": ["Inter"],
+                      "label-md": ["Inter"],
+                      "headline-xl-mobile": ["Inter"],
+                      "body-lg": ["Inter"],
+                      "headline-lg": ["Inter"],
+                      "body-md": ["Inter"],
+                      "headline-xl": ["Inter"],
+                      "headline-md": ["Inter"]
+              },
+              "fontSize": {
+                      "label-sm": ["11px", {"lineHeight": "14px", "fontWeight": "600"}],
+                      "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "500"}],
+                      "headline-xl-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "700"}],
+                      "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                      "headline-lg": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.015em", "fontWeight": "600"}],
+                      "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                      "headline-xl": ["36px", {"lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}]
+              }
+            },
+          },
+        }
+    </script>
+</head>
+<body class="bg-background text-on-surface selection:bg-primary-fixed-dim min-h-screen flex">
+<!-- SideNavBar (Authority Source: JSON) -->
+<aside class="hidden md:flex flex-col h-full p-md gap-base sticky left-0 top-0 bg-surface-container-low border-r border-outline-variant w-64">
+<div class="flex items-center gap-sm mb-lg px-xs">
+<div class="w-10 h-10 bg-primary rounded-lg flex items-center justify-center text-on-primary">
+<span class="material-symbols-outlined" data-icon="rocket_launch">rocket_launch</span>
+</div>
+<div>
+<h1 class="font-headline-md text-headline-md font-bold text-primary">ZenFlow</h1>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Productivity Suite</p>
+</div>
+</div>
+<nav class="flex flex-col gap-xs flex-1">
+<a class="flex items-center gap-sm px-sm py-base font-label-md text-label-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span> Dashboard
+            </a>
+<a class="flex items-center gap-sm px-sm py-base font-label-md text-label-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="list_alt">list_alt</span> Backlog
+            </a>
+<a class="flex items-center gap-sm px-sm py-base font-label-md text-label-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="calendar_view_week">calendar_view_week</span> Weekly To-do
+            </a>
+<!-- Active Navigation State: Organizations (per Semantic Shell Mandate) -->
+<a class="flex items-center gap-sm px-sm py-base font-label-md text-label-md bg-secondary-container text-on-secondary-container rounded-lg translate-x-1 duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="corporate_fare" data-weight="fill" style="font-variation-settings: 'FILL' 1;">corporate_fare</span> Organizations
+            </a>
+<a class="flex items-center gap-sm px-sm py-base font-label-md text-label-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="folder">folder</span> Projects
+            </a>
+<a class="flex items-center gap-sm px-sm py-base font-label-md text-label-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span> Settings
+            </a>
+</nav>
+<div class="mt-auto pt-md border-t border-outline-variant flex items-center gap-sm px-xs">
+<img alt="User profile avatar" class="w-8 h-8 rounded-full bg-surface-variant" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBXexyJvCwg9rpZFrk9iMGO9WiyT8G4g9oFNuGw7Zer7AplD4DTLGTQEThpsfYyP_sltOL_2-EbOOifLc2DE3BtnkyYjn9ffyd_6VSScuGnk6UFSyv5mmui_QmIqTvw-dNPnX5irwilQQpbZNWO3I6UUfvkyOmgGgmbjTkwHW5q8EWC0WK86KyBvyYuNC_9M1_G1y-CXeSpw5648Z6zAjebUragmTREhJndy4S5tvzn1JYXmm3MPwFHGMjtmZGDASy9r0CWKry4zTzu"/>
+<div class="flex-1 overflow-hidden">
+<p class="font-label-md text-label-md text-on-surface truncate">Alex Rivera</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant truncate">Pro Plan</p>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer" data-icon="more_vert">more_vert</span>
+</div>
+</aside>
+<main class="flex-1 flex flex-col min-h-screen">
+<!-- TopAppBar (Authority Source: JSON) -->
+<header class="flex justify-between items-center h-16 px-margin-desktop w-full sticky top-0 z-50 bg-surface border-b border-outline-variant">
+<div class="flex items-center gap-md flex-1">
+<div class="relative w-full max-w-md">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline" data-icon="search">search</span>
+<input class="w-full bg-surface-container-low border border-outline-variant rounded-full py-1.5 pl-10 pr-4 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all font-body-md text-body-md" placeholder="Search organizations..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-base">
+<button class="p-base hover:bg-surface-container-low transition-colors rounded-full text-on-surface-variant active:scale-[0.98] duration-200">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="p-base hover:bg-surface-container-low transition-colors rounded-full text-on-surface-variant active:scale-[0.98] duration-200">
+<span class="material-symbols-outlined" data-icon="help_outline">help_outline</span>
+</button>
+</div>
+</header>
+<!-- Main Content Area -->
+<div class="flex-1 px-margin-desktop py-lg max-w-7xl mx-auto w-full">
+<!-- Hero Header -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-md mb-xl">
+<div>
+<nav class="flex items-center gap-xs text-outline font-label-md text-label-md mb-xs">
+<span class="hover:text-primary cursor-pointer">Workspace</span>
+<span class="material-symbols-outlined text-[14px]" data-icon="chevron_right">chevron_right</span>
+<span class="text-on-surface">Organizations</span>
+</nav>
+<h2 class="font-headline-xl text-headline-xl text-primary tracking-tight">Organizations</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant mt-xs">Centralized hub for your professional and personal workspaces.</p>
+</div>
+<button class="bg-primary text-on-primary px-md py-sm rounded-xl font-label-md text-label-md flex items-center gap-sm hover:shadow-lg transition-all active:scale-[0.96]">
+<span class="material-symbols-outlined" data-icon="add_circle">add_circle</span>
+                    Create Organization
+                </button>
+</div>
+<!-- Dashboard Statistics -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-gutter mb-xl">
+<div class="bg-surface-container-lowest border border-outline-variant p-md rounded-xl">
+<div class="flex items-center justify-between mb-sm">
+<p class="font-label-md text-label-md text-on-surface-variant">Total Organizations</p>
+<span class="material-symbols-outlined text-primary" data-icon="hub">hub</span>
+</div>
+<p class="font-headline-lg text-headline-lg text-on-surface">12</p>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant p-md rounded-xl">
+<div class="flex items-center justify-between mb-sm">
+<p class="font-label-md text-label-md text-on-surface-variant">Active Projects</p>
+<span class="material-symbols-outlined text-secondary" data-icon="task_alt">task_alt</span>
+</div>
+<p class="font-headline-lg text-headline-lg text-on-surface">48</p>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant p-md rounded-xl">
+<div class="flex items-center justify-between mb-sm">
+<p class="font-label-md text-label-md text-on-surface-variant">Avg. Health</p>
+<span class="material-symbols-outlined text-tertiary-container" data-icon="monitoring">monitoring</span>
+</div>
+<p class="font-headline-lg text-headline-lg text-on-surface">92%</p>
+</div>
+</div>
+<!-- Organizations Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter">
+<!-- Org Card: Work -->
+<div class="group bg-surface-container-lowest border border-outline-variant hover:border-primary rounded-xl overflow-hidden shadow-[y:4px,blur:12px,opacity:0.05] hover:shadow-xl transition-all duration-300">
+<div class="h-24 relative overflow-hidden bg-primary-container">
+<div class="absolute inset-0 opacity-20" style="background-image: radial-gradient(circle at 2px 2px, white 1px, transparent 0); background-size: 16px 16px;"></div>
+<div class="absolute -bottom-6 left-md">
+<div class="w-16 h-16 bg-white rounded-xl shadow-lg border border-outline-variant flex items-center justify-center p-xs">
+<img alt="Work logo" class="w-full h-full object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD8I442bHtiXjA9hsmA6IGo8dyO9DHd-E1wgjoGBzN_i5taTzAiPsfnkXthX5CCuwuPNj9vO6BISaY4ievPu3HHpzUrQjjLsqzTlMc1Z-to-7l8Rl3q6_m1qCuso8buAb0z_ULHbylhPqwiiUahiM74Jqd5rJxLCoOJwr4qeaHkpeaE_oEWqtfY3ACBxNXrcE0gRN2l6rEmDe91-OiJnYZpWW6_N22PjXwAVyLV8oxk0ffkhXJEP3rWtYv9MGDOCrdypMrZcVJJuuy6"/>
+</div>
+</div>
+</div>
+<div class="p-md pt-12">
+<div class="flex justify-between items-start mb-base">
+<div>
+<h3 class="font-headline-md text-headline-md text-on-surface">ZenFlow Corp</h3>
+<p class="font-label-md text-label-md text-on-surface-variant">Main Business Hub</p>
+</div>
+<span class="bg-secondary-container text-on-secondary-container px-xs py-0.5 rounded text-[10px] font-bold uppercase tracking-wider">Priority</span>
+</div>
+<div class="grid grid-cols-2 gap-sm my-md">
+<div class="bg-surface-container-low p-sm rounded-lg">
+<p class="font-label-sm text-label-sm text-on-surface-variant">Projects</p>
+<p class="font-label-md text-label-md text-on-surface font-bold">24 Active</p>
+</div>
+<div class="bg-surface-container-low p-sm rounded-lg">
+<p class="font-label-sm text-label-sm text-on-surface-variant">Members</p>
+<p class="font-label-md text-label-md text-on-surface font-bold">128 Total</p>
+</div>
+</div>
+<div class="space-y-base">
+<div class="flex justify-between font-label-sm text-label-sm">
+<span class="text-on-surface-variant">Overall Health</span>
+<span class="text-primary font-bold">88%</span>
+</div>
+<div class="h-1.5 w-full bg-surface-container-high rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[88%] rounded-full"></div>
+</div>
+</div>
+<div class="mt-md pt-md border-t border-outline-variant flex justify-between items-center">
+<div class="flex -space-x-2">
+<img alt="Member 1" class="w-6 h-6 rounded-full border-2 border-surface-container-lowest" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCxnsTadvzcajSjdpw16Aw1bLd1SigictK9rcu0rGD3XNpPbbxbIxOvnJP5TDhQM-JCddoQqGg_zF_VmUdb8MQwxTDWA_fekpebedYMcIzXRnsPasfjyK2IrVIBQ-8wsdfoXaqe_xJ_fJvmIRy959116H9AFqg4mxKwAGgXmu0n_7PJ34c9hDIyiDPyy1Tx0u5rIbMM959sX-Y9PIpyqZnRhD4fbT-iF0P2MTPUoiiKJydnUiIQCP2ud6JZBT7F9O98OkOitCR_3u5M"/>
+<img alt="Member 2" class="w-6 h-6 rounded-full border-2 border-surface-container-lowest" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAiJfcT5Er4rHlXyOAOF9yLqWCHTTBzkhlxua3Zdlvbphg3byYB7e8cVDJ7XsUjlHfbw2KOyolFej0FDAssIjMoJJBnlbtECP2IzbJd82nJY7ecx0SK4ZN-MMRPp2zWGc3yd22rj68RjXk_iJFNPEbRlIa7a1rB1Hp-4HKOHPArK4DObUU59uqLCvb_J2gV_75yq29kWamhfFxr50vyRnu277gppu5s-BoKTy_cpPclqOzt_4eZaL49R72aopRkvTIStXBlPqA6a0ow"/>
+<img alt="Member 3" class="w-6 h-6 rounded-full border-2 border-surface-container-lowest" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAAnRZXMrLtgeTQUxA9Xrr5tGxuD0Nmqf5kDbhTljjIdkZ4jIv_qT05V-gEWgirdORSxV1Fotls4IA56El56ieHS-CoV7Hm9aKmDB00HXVPTU7ABaLWSlGRYt2GFfv01UkdWN59tVMjTrY-bh9W7ZpE80KhxDTJ9W3fDmb5H0vBrfASmqEw-zGaRa3jd-VCMAaPoSp_JTNcQ8WbpDLSrVXDwCcpkuOSjf7ZgLZ28y_Hm8SZnOjGNRlbYozLFtaHNUV02FqpanKJ-exZ"/>
+<div class="w-6 h-6 rounded-full bg-surface-variant border-2 border-surface-container-lowest flex items-center justify-center font-label-sm text-[10px]">+125</div>
+</div>
+<button class="text-primary font-label-md text-label-md hover:underline">View Workspace</button>
+</div>
+</div>
+</div>
+<!-- Org Card: Freelance -->
+<div class="group bg-surface-container-lowest border border-outline-variant hover:border-primary rounded-xl overflow-hidden shadow-[y:4px,blur:12px,opacity:0.05] hover:shadow-xl transition-all duration-300">
+<div class="h-24 relative overflow-hidden bg-tertiary-container">
+<div class="absolute inset-0 opacity-20" style="background-image: linear-gradient(45deg, white 25%, transparent 25%, transparent 50%, white 50%, white 75%, transparent 75%, transparent); background-size: 20px 20px;"></div>
+<div class="absolute -bottom-6 left-md">
+<div class="w-16 h-16 bg-white rounded-xl shadow-lg border border-outline-variant flex items-center justify-center p-xs">
+<img alt="Freelance logo" class="w-full h-full object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCQs8qoxAIrGOETGC2n66qsTs9eRIUk6WaCbIBOCB_NYaAOjWn11a6gEavfNCz06YxXIS0hyEumNdN5DlhkKcvkwpLvMGiuJdKrSLv1xeHedSzJrzxsj_qsh_Ovlh-MnRUSThJGQ2vpwdd4vZXqsHjQugqXM85uVTydMYZ9dfJ4UDIp6RrWNub0C_5yR-gAGQsaVJxfr4WYoIPrOfePIUmSxYdMm_v02eUfujBGAESi5HNzGvjXvOEmyRGiuPL3EsVH32mly5LYBnC-"/>
+</div>
+</div>
+</div>
+<div class="p-md pt-12">
+<div class="flex justify-between items-start mb-base">
+<div>
+<h3 class="font-headline-md text-headline-md text-on-surface">Freelance Studio</h3>
+<p class="font-label-md text-label-md text-on-surface-variant">Personal Brand</p>
+</div>
+<span class="bg-surface-variant text-on-surface-variant px-xs py-0.5 rounded text-[10px] font-bold uppercase tracking-wider">Internal</span>
+</div>
+<div class="grid grid-cols-2 gap-sm my-md">
+<div class="bg-surface-container-low p-sm rounded-lg">
+<p class="font-label-sm text-label-sm text-on-surface-variant">Projects</p>
+<p class="font-label-md text-label-md text-on-surface font-bold">12 Active</p>
+</div>
+<div class="bg-surface-container-low p-sm rounded-lg">
+<p class="font-label-sm text-label-sm text-on-surface-variant">Members</p>
+<p class="font-label-md text-label-md text-on-surface font-bold">4 Total</p>
+</div>
+</div>
+<div class="space-y-base">
+<div class="flex justify-between font-label-sm text-label-sm">
+<span class="text-on-surface-variant">Overall Health</span>
+<span class="text-tertiary-container font-bold">95%</span>
+</div>
+<div class="h-1.5 w-full bg-surface-container-high rounded-full overflow-hidden">
+<div class="h-full bg-tertiary-container w-[95%] rounded-full"></div>
+</div>
+</div>
+<div class="mt-md pt-md border-t border-outline-variant flex justify-between items-center">
+<div class="flex -space-x-2">
+<img alt="Member 1" class="w-6 h-6 rounded-full border-2 border-surface-container-lowest" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB1mfuBdXK6TwkYFqbrGTxKV4oIoVzTLW-RL9tAdNF-MVYhi6aQa8Ml0yA1-WcsMB3bhQgTp3EV03aXybbdNRSRbKiknFTKKximtNLGFgIlmPDT0aTBxFnA_9-r4kjElJN2yieKjHRsKCDYrJLor-8UXV3bZ85N1x88n_urE28pwCYPUrBASU9OMWMidycK6bzrMj_U74HSYIwVlLvt9QDAJEVpElIpr8rPK6CuupWJ0feRdBGqRto6kURsI0NLDmvLwNn212EEwemP"/>
+<img alt="Member 2" class="w-6 h-6 rounded-full border-2 border-surface-container-lowest" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBIydb4MQrm-nlRqXlXsA0806_gSdw-mTPs2x4troa_aHA4oVU2KgkoyV_IpAI3mtwm39FYgfUqSrSX65hseEDUt4OAkKgoS_gmAYvBtmblddGfxU6R6ATPM1JajKX-GAVPUNCGknJCc42g3F9PEcoyvRcILMsKhUM4A2Me72azWqX-7ZPhX0K2FLumr0t7GR5tcop4xuxZ8Uu2ydZskYqSRh297yhieiHA4kSjDx2DUCSfQRb3iO57Ty7N2IqloQJCMPscxjHZhX9G"/>
+</div>
+<button class="text-primary font-label-md text-label-md hover:underline">View Workspace</button>
+</div>
+</div>
+</div>
+<!-- Org Card: Personal -->
+<div class="group bg-surface-container-lowest border border-outline-variant hover:border-primary rounded-xl overflow-hidden shadow-[y:4px,blur:12px,opacity:0.05] hover:shadow-xl transition-all duration-300">
+<div class="h-24 relative overflow-hidden bg-secondary">
+<div class="absolute inset-0 opacity-10" style="background-image: repeating-linear-gradient(0deg, white, white 1px, transparent 1px, transparent 10px);"></div>
+<div class="absolute -bottom-6 left-md">
+<div class="w-16 h-16 bg-white rounded-xl shadow-lg border border-outline-variant flex items-center justify-center p-xs">
+<img alt="Personal logo" class="w-full h-full object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDgcakKnYycKzcPu3iOt7yIklc-6WY6ZO4j6is3ip_5SP74DTTP0yLvcj8ndRjoy0yx6bYrupU1bWVfnT6kOBNVF97br3Q6NXwErZOH10_QAB65jkpg8IJytwIv4BTsivhwB41gqgDcdny17cHeLE07fzJo-92xNSEUB2cFD4PLiZ4p6rm4j6Vc8uEhzoFdWdezfK9JTmfVFLOIuDZdQOEv7g-jm4h7wP2p0wJzrMtW5Uzj9cVPj63GlLC_knGn3TvoCbeU-7HxQg6k"/>
+</div>
+</div>
+</div>
+<div class="p-md pt-12">
+<div class="flex justify-between items-start mb-base">
+<div>
+<h3 class="font-headline-md text-headline-md text-on-surface">Home &amp; Life</h3>
+<p class="font-label-md text-label-md text-on-surface-variant">Private Archive</p>
+</div>
+<span class="bg-error-container text-on-error-container px-xs py-0.5 rounded text-[10px] font-bold uppercase tracking-wider">Private</span>
+</div>
+<div class="grid grid-cols-2 gap-sm my-md">
+<div class="bg-surface-container-low p-sm rounded-lg">
+<p class="font-label-sm text-label-sm text-on-surface-variant">Projects</p>
+<p class="font-label-md text-label-md text-on-surface font-bold">5 Active</p>
+</div>
+<div class="bg-surface-container-low p-sm rounded-lg">
+<p class="font-label-sm text-label-sm text-on-surface-variant">Members</p>
+<p class="font-label-md text-label-md text-on-surface font-bold">1 Total</p>
+</div>
+</div>
+<div class="space-y-base">
+<div class="flex justify-between font-label-sm text-label-sm">
+<span class="text-on-surface-variant">Overall Health</span>
+<span class="text-secondary font-bold">72%</span>
+</div>
+<div class="h-1.5 w-full bg-surface-container-high rounded-full overflow-hidden">
+<div class="h-full bg-secondary w-[72%] rounded-full"></div>
+</div>
+</div>
+<div class="mt-md pt-md border-t border-outline-variant flex justify-between items-center">
+<div class="flex -space-x-2">
+<img alt="Me" class="w-6 h-6 rounded-full border-2 border-surface-container-lowest" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB_N4g_rv14I-pLs2BDfyv66lOXoEyJ5LrYOKarHfjo8Q0uWStmge8pHLAQXAXeJCzWefK6bc43QlJl_9YuImhJPq_UqeE3RbEB8-t473CR9xGmPuDa0gUrmnFNVeTqTAInM5VIghm-P_6aioTAsViAEWtmNpjEARmWxOlhLlZ9cVMKUs4z825IHajvyFYAV4Rg5xht2C7uzmgOpNHS8E0LOPRs-ZrhHW-BlaSoB9sMcFVuf1tdySovlfMbh4KJ5brghAY_bqxDAhBv"/>
+</div>
+<button class="text-primary font-label-md text-label-md hover:underline">View Workspace</button>
+</div>
+</div>
+</div>
+<!-- Create New Card -->
+<div class="group border-2 border-dashed border-outline-variant hover:border-primary hover:bg-surface-container-low rounded-xl flex flex-col items-center justify-center p-xl cursor-pointer transition-all duration-300">
+<div class="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center text-outline group-hover:bg-primary group-hover:text-on-primary transition-colors mb-sm">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+</div>
+<p class="font-label-md text-label-md text-on-surface-variant group-hover:text-primary">Add New Organization</p>
+</div>
+</div>
+<!-- Focus Section: Analytics Preview -->
+<div class="mt-xl bg-surface-container-lowest border border-outline-variant rounded-2xl p-lg flex flex-col lg:flex-row gap-lg items-center">
+<div class="flex-1 space-y-md">
+<div class="inline-flex items-center gap-xs px-sm py-1 bg-primary-fixed text-on-primary-fixed rounded-full">
+<span class="material-symbols-outlined text-[16px]" data-icon="auto_awesome">auto_awesome</span>
+<span class="font-label-sm text-label-sm">System Insights</span>
+</div>
+<h3 class="font-headline-lg text-headline-lg text-on-surface">Optimize your workflow across all organizations.</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Our AI analyzed your activity. You are 22% more productive when tasks are grouped within the 'ZenFlow Corp' organization. Consider moving minor personal tasks to a weekly backlog.</p>
+<div class="flex gap-md">
+<button class="text-primary font-label-md text-label-md flex items-center gap-xs hover:gap-sm transition-all">
+                            View detailed report <span class="material-symbols-outlined text-[18px]" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+</div>
+<div class="w-full lg:w-1/3 bg-surface-container-high rounded-xl h-48 overflow-hidden relative">
+<img alt="Analytics Preview" class="w-full h-full object-cover mix-blend-multiply opacity-80" data-alt="A clean, high-fidelity data visualization dashboard featuring minimalist line charts and geometric data points. The palette is dominated by deep indigo and soft teals, consistent with a professional productivity app's analytics screen. Soft ambient lighting creates a calm, focused atmosphere with significant white space around the data elements." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAV-13xnb5WFXpiAUJjEKDOmI8aZL20frcZlNzvkgthzRvh28VQlH7IrER3_2g2bnPYMuD13l09Bw9iHGuRQSa0kZ2O_hJyRfD8XqRNiaz2nmZ1nlvB33MlAFASMaLYuvBjPG1C7Ybu75u5qEiE0PF0xZpAEUi8Ge038zibpcvkKbckGOLdDwDP3DceI1A4zau_6AOOIUOZkIuthLqrtnDLOtMLXGau_3KvNo7OsPCUKwQzyq8YCoHnpWuUz_PF9KqWhcOODysWDyDP"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container-lowest/40 to-transparent"></div>
+</div>
+</div>
+</div>
+<!-- Floating Action Button (FAB) Suppression: As per mandate, not needed here as we have the "Create" button in the header -->
+</main>
+<!-- Mobile Bottom Navigation (Responsive Pivot) -->
+<nav class="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-surface border-t border-outline-variant flex items-center justify-around px-md z-50">
+<button class="flex flex-col items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="text-[10px] font-label-sm">Home</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-primary">
+<span class="material-symbols-outlined" data-icon="corporate_fare" data-weight="fill" style="font-variation-settings: 'FILL' 1;">corporate_fare</span>
+<span class="text-[10px] font-label-sm">Orgs</span>
+</button>
+<button class="w-12 h-12 -mt-10 bg-primary text-on-primary rounded-full shadow-lg flex items-center justify-center">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="folder">folder</span>
+<span class="text-[10px] font-label-sm">Projects</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="text-[10px] font-label-sm">Set</span>
+</button>
+</nav>
+<script>
+        // Micro-interaction for Card Lifts
+        document.querySelectorAll('.group').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.style.transform = 'translateY(-4px)';
+            });
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'translateY(0)';
+            });
+        });
+    </script>
+</body></html>

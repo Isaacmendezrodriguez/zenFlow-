@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ZenFlow - Calendar &amp; Active Timer</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-surface": "#1b1b22",
+                        "on-tertiary-fixed": "#351000",
+                        "inverse-surface": "#303037",
+                        "tertiary-fixed": "#ffdbcc",
+                        "surface-tint": "#544fc0",
+                        "on-error-container": "#93000a",
+                        "on-surface-variant": "#464553",
+                        "tertiary-fixed-dim": "#ffb694",
+                        "on-tertiary-fixed-variant": "#7a3003",
+                        "on-secondary": "#ffffff",
+                        "background": "#fcf8ff",
+                        "tertiary-container": "#752c00",
+                        "on-secondary-fixed": "#00201c",
+                        "primary": "#1f108e",
+                        "on-background": "#1b1b22",
+                        "error-container": "#ffdad6",
+                        "surface-bright": "#fcf8ff",
+                        "primary-fixed-dim": "#c3c0ff",
+                        "outline": "#777584",
+                        "on-primary": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "primary-fixed": "#e2dfff",
+                        "outline-variant": "#c8c4d5",
+                        "surface-container-high": "#eae6f1",
+                        "on-secondary-fixed-variant": "#005047",
+                        "on-primary-fixed": "#0f0069",
+                        "surface-container": "#f0ecf6",
+                        "primary-container": "#3730a3",
+                        "surface-dim": "#dcd8e3",
+                        "secondary-fixed-dim": "#3cddc7",
+                        "on-primary-container": "#a9a7ff",
+                        "error": "#ba1a1a",
+                        "inverse-on-surface": "#f3eff9",
+                        "surface-variant": "#e4e1eb",
+                        "surface-container-highest": "#e4e1eb",
+                        "on-error": "#ffffff",
+                        "surface": "#fcf8ff",
+                        "inverse-primary": "#c3c0ff",
+                        "secondary-container": "#62fae3",
+                        "surface-container-lowest": "#ffffff",
+                        "tertiary": "#511c00",
+                        "secondary-fixed": "#62fae3",
+                        "on-tertiary-container": "#fe9562",
+                        "on-primary-fixed-variant": "#3b35a7",
+                        "surface-container-low": "#f6f2fc",
+                        "secondary": "#006b5f",
+                        "on-secondary-container": "#007165"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    spacing: {
+                        "gutter": "24px",
+                        "lg": "48px",
+                        "xs": "4px",
+                        "margin-desktop": "40px",
+                        "sm": "12px",
+                        "base": "8px",
+                        "xl": "80px",
+                        "margin-mobile": "16px",
+                        "md": "24px"
+                    },
+                    fontFamily: {
+                        "headline-md": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "headline-xl": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "headline-xl-mobile": ["Inter"],
+                        "label-md": ["Inter"],
+                        "body-md": ["Inter"]
+                    },
+                    fontSize: {
+                        "headline-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-lg": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.015em", "fontWeight": "600" }],
+                        "headline-xl": ["36px", { "lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "label-sm": ["11px", { "lineHeight": "14px", "fontWeight": "600" }],
+                        "headline-xl-mobile": ["28px", { "lineHeight": "36px", "fontWeight": "700" }],
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "500" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.fill {
+            font-variation-settings: 'FILL' 1;
+        }
+        
+        /* Ambient shadows for depth */
+        .shadow-level-2 {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        .shadow-widget {
+            box-shadow: 0 12px 32px rgba(27, 27, 34, 0.12), 0 4px 12px rgba(27, 27, 34, 0.08);
+        }
+
+        /* Hide scrollbar for clean minimal look */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #dcd8e3;
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #c8c4d5;
+        }
+        
+        /* Grid background pattern for calendar area */
+        .calendar-grid-bg {
+            background-size: 100% 60px;
+            background-image: linear-gradient(to bottom, #f0ecf6 1px, transparent 1px);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md text-body-md h-screen w-full overflow-hidden flex selection:bg-primary-container selection:text-on-primary-container">
+<!-- SideNavBar (Desktop) -->
+<aside class="hidden md:flex flex-col fixed left-0 top-0 h-screen p-md gap-base border-r border-outline-variant bg-surface-container-low w-64 z-40">
+<!-- Header -->
+<div class="flex items-center gap-sm px-sm py-base mb-md">
+<div class="w-8 h-8 rounded-lg bg-primary text-on-primary flex items-center justify-center font-bold">Z</div>
+<div>
+<h1 class="font-headline-md text-headline-md font-bold text-on-surface">ZenFlow</h1>
+<p class="font-label-sm text-label-sm text-on-surface-variant opacity-80">Productivity Suite</p>
+</div>
+</div>
+<!-- CTA -->
+<button class="w-full flex items-center justify-center gap-sm bg-primary text-on-primary py-sm px-md rounded-lg font-label-md text-label-md hover:opacity-90 active:scale-[0.98] transition-all mb-md shadow-sm">
+<span class="material-symbols-outlined text-[18px]">add</span>
+            New Task
+        </button>
+<!-- Main Navigation -->
+<nav class="flex-1 flex flex-col gap-xs">
+<!-- Inactive -->
+<a class="flex items-center gap-sm px-sm py-sm text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all duration-200 group" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:text-on-surface transition-colors">dashboard</span>
+<span class="font-label-md text-label-md group-hover:text-on-surface transition-colors">Dashboard</span>
+</a>
+<a class="flex items-center gap-sm px-sm py-sm text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all duration-200 group" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:text-on-surface transition-colors">inventory_2</span>
+<span class="font-label-md text-label-md group-hover:text-on-surface transition-colors">Backlog</span>
+</a>
+<!-- Active Tab -->
+<a class="flex items-center gap-sm px-sm py-sm bg-primary-container text-on-primary-container rounded-lg font-semibold transition-all duration-200" href="#">
+<span class="material-symbols-outlined text-[20px] fill">calendar_view_week</span>
+<span class="font-label-md text-label-md">To-do semanal</span>
+</a>
+<!-- Inactive -->
+<a class="flex items-center gap-sm px-sm py-sm text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all duration-200 group" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:text-on-surface transition-colors">corporate_fare</span>
+<span class="font-label-md text-label-md group-hover:text-on-surface transition-colors">Organizations</span>
+</a>
+<a class="flex items-center gap-sm px-sm py-sm text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all duration-200 group" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:text-on-surface transition-colors">folder_open</span>
+<span class="font-label-md text-label-md group-hover:text-on-surface transition-colors">Projects</span>
+</a>
+</nav>
+<!-- Footer Navigation -->
+<div class="mt-auto flex flex-col gap-xs pt-md border-t border-outline-variant">
+<a class="flex items-center gap-sm px-sm py-sm text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all duration-200 group" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:text-on-surface transition-colors">settings</span>
+<span class="font-label-md text-label-md group-hover:text-on-surface transition-colors">Settings</span>
+</a>
+<a class="flex items-center gap-sm px-sm py-sm text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all duration-200 group" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:text-on-surface transition-colors">help</span>
+<span class="font-label-md text-label-md group-hover:text-on-surface transition-colors">Help</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Wrapper -->
+<main class="flex-1 ml-0 md:ml-64 flex flex-col h-full min-w-0 bg-surface">
+<!-- TopAppBar -->
+<header class="sticky top-0 z-30 flex items-center justify-between px-md h-16 w-full bg-surface border-b border-outline-variant">
+<!-- Search Bar -->
+<div class="flex-1 max-w-md">
+<div class="relative flex items-center w-full">
+<span class="material-symbols-outlined absolute left-sm text-on-surface-variant text-[20px]">search</span>
+<input class="w-full bg-surface-container h-10 pl-10 pr-sm rounded-lg border border-transparent focus:border-primary focus:bg-surface focus:ring-0 font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant transition-all" placeholder="Search tasks, projects..." type="text"/>
+</div>
+</div>
+<!-- Actions -->
+<div class="flex items-center gap-sm">
+<button class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high transition-colors relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full"></span>
+</button>
+<div class="w-px h-6 bg-outline-variant mx-sm"></div>
+<div class="w-8 h-8 rounded-full overflow-hidden bg-surface-variant border border-outline-variant cursor-pointer flex-shrink-0">
+<img alt="User avatar profile picture showing a young woman" class="w-full h-full object-cover" data-alt="A close-up studio portrait of a young professional woman serving as a user profile avatar. She is positioned against a clean, light-colored background that matches a modern UI light mode aesthetic. The lighting is soft, even, and high-key, highlighting natural skin tones without harsh shadows. She has a neutral, approachable expression." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDvFG40eyPxRcGppgsn1kXfvXI-BN894XirSuEEq09EuA0hZ8FIfBxu3S_pZSsVK21DTdH661wNCrWNXzzbPz5rQH4PHMLH2MgZVzXz0MS5pqnC3gLZoiohCe79BZhfGoW0SwxhqnY9EwvtBmh2OX_-am08IJ8H_iWoOfWRHl76nH250xp5VE2lQz3Zlnk6wt6soeARUz0Et7IcOtQvhBWNogmf7DInpOLPgHKp-1iXQw9Hrcx4AdZXYiqPDGGjIs94R3kVAL07yUl1"/>
+</div>
+</div>
+</header>
+<!-- Canvas Area (Calendar View) -->
+<div class="flex-1 overflow-auto bg-surface-bright relative" id="calendar-canvas">
+<!-- Calendar Header / Controls -->
+<div class="sticky top-0 z-20 bg-surface/90 backdrop-blur-sm border-b border-outline-variant px-margin-desktop py-md flex items-center justify-between">
+<div class="flex items-center gap-md">
+<h2 class="font-headline-lg text-headline-lg font-bold text-on-surface">Oct 23 - 29, 2023</h2>
+<div class="flex items-center gap-xs bg-surface-container rounded-lg p-[2px]">
+<button class="p-xs text-on-surface-variant hover:text-on-surface hover:bg-surface-variant rounded-md transition-colors"><span class="material-symbols-outlined text-[20px]">chevron_left</span></button>
+<button class="px-sm py-xs font-label-md text-label-md text-on-surface hover:bg-surface-variant rounded-md transition-colors">Today</button>
+<button class="p-xs text-on-surface-variant hover:text-on-surface hover:bg-surface-variant rounded-md transition-colors"><span class="material-symbols-outlined text-[20px]">chevron_right</span></button>
+</div>
+</div>
+<div class="flex items-center gap-sm">
+<button class="px-sm py-2 rounded-lg border border-outline-variant font-label-md text-label-md text-on-surface flex items-center gap-xs hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined text-[18px]">filter_list</span> Filter
+                    </button>
+<div class="bg-surface-container rounded-lg p-[2px] flex items-center">
+<button class="px-md py-1.5 rounded-md font-label-md text-label-md bg-surface text-on-surface shadow-sm">Week</button>
+<button class="px-md py-1.5 rounded-md font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors">Month</button>
+</div>
+</div>
+</div>
+<!-- Calendar Grid Container -->
+<div class="min-w-[800px] flex flex-col">
+<!-- Day Headers -->
+<div class="grid grid-cols-[80px_repeat(7,1fr)] border-b border-outline-variant bg-surface sticky top-[81px] z-10">
+<div class="p-sm text-right text-on-surface-variant font-label-sm text-label-sm uppercase tracking-wider">GMT-4</div>
+<!-- Days -->
+<div class="p-sm border-l border-outline-variant text-center"><div class="font-label-sm text-label-sm text-on-surface-variant">MON</div><div class="font-headline-md text-headline-md text-on-surface mt-1">23</div></div>
+<div class="p-sm border-l border-outline-variant text-center"><div class="font-label-sm text-label-sm text-primary">TUE</div><div class="font-headline-md text-headline-md text-primary bg-primary-container/20 w-10 h-10 mx-auto rounded-full flex items-center justify-center mt-1">24</div></div>
+<div class="p-sm border-l border-outline-variant text-center"><div class="font-label-sm text-label-sm text-on-surface-variant">WED</div><div class="font-headline-md text-headline-md text-on-surface mt-1">25</div></div>
+<div class="p-sm border-l border-outline-variant text-center"><div class="font-label-sm text-label-sm text-on-surface-variant">THU</div><div class="font-headline-md text-headline-md text-on-surface mt-1">26</div></div>
+<div class="p-sm border-l border-outline-variant text-center"><div class="font-label-sm text-label-sm text-on-surface-variant">FRI</div><div class="font-headline-md text-headline-md text-on-surface mt-1">27</div></div>
+<div class="p-sm border-l border-outline-variant text-center bg-surface-container-low/50"><div class="font-label-sm text-label-sm text-on-surface-variant">SAT</div><div class="font-headline-md text-headline-md text-on-surface-variant mt-1">28</div></div>
+<div class="p-sm border-l border-outline-variant text-center bg-surface-container-low/50"><div class="font-label-sm text-label-sm text-on-surface-variant">SUN</div><div class="font-headline-md text-headline-md text-on-surface-variant mt-1">29</div></div>
+</div>
+<!-- Time Grid -->
+<div class="relative grid grid-cols-[80px_repeat(7,1fr)] bg-surface calendar-grid-bg h-[900px]">
+<!-- Time Column -->
+<div class="flex flex-col bg-surface z-10 border-r border-outline-variant">
+<div class="h-[60px] relative"><span class="absolute -top-3 right-sm font-label-sm text-label-sm text-on-surface-variant">8 AM</span></div>
+<div class="h-[60px] relative"><span class="absolute -top-3 right-sm font-label-sm text-label-sm text-on-surface-variant">9 AM</span></div>
+<div class="h-[60px] relative"><span class="absolute -top-3 right-sm font-label-sm text-label-sm text-on-surface-variant">10 AM</span></div>
+<div class="h-[60px] relative"><span class="absolute -top-3 right-sm font-label-sm text-label-sm text-on-surface-variant">11 AM</span></div>
+<div class="h-[60px] relative"><span class="absolute -top-3 right-sm font-label-sm text-label-sm text-on-surface-variant">12 PM</span></div>
+<div class="h-[60px] relative"><span class="absolute -top-3 right-sm font-label-sm text-label-sm text-on-surface-variant">1 PM</span></div>
+<div class="h-[60px] relative"><span class="absolute -top-3 right-sm font-label-sm text-label-sm text-on-surface-variant">2 PM</span></div>
+<div class="h-[60px] relative"><span class="absolute -top-3 right-sm font-label-sm text-label-sm text-on-surface-variant">3 PM</span></div>
+<div class="h-[60px] relative"><span class="absolute -top-3 right-sm font-label-sm text-label-sm text-on-surface-variant">4 PM</span></div>
+<div class="h-[60px] relative"><span class="absolute -top-3 right-sm font-label-sm text-label-sm text-on-surface-variant">5 PM</span></div>
+</div>
+<!-- Grid Columns (Vertical Dividers) -->
+<div class="border-r border-outline-variant/50 relative"></div>
+<div class="border-r border-outline-variant/50 relative">
+<!-- Current Time Indicator Line -->
+<div class="absolute top-[280px] -left-1 w-[calc(100%+4px)] h-px bg-primary z-20 pointer-events-none">
+<div class="w-2 h-2 rounded-full bg-primary absolute -left-1 -top-1"></div>
+</div>
+<!-- Active Block (Context for the timer) -->
+<div class="absolute top-[240px] left-1 right-1 h-[120px] bg-tertiary-container/10 border border-tertiary-container/30 rounded-md p-sm z-10 overflow-hidden group hover:shadow-level-2 transition-shadow cursor-pointer">
+<div class="w-1 absolute left-0 top-0 bottom-0 bg-tertiary rounded-l-md"></div>
+<div class="font-label-md text-label-md text-tertiary flex items-center gap-1 mb-1">
+<span class="material-symbols-outlined text-[14px]">bolt</span> Deep Work
+                            </div>
+<div class="font-label-sm text-label-sm text-on-surface">UI Design System</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant mt-1">12:00 PM - 2:00 PM</div>
+</div>
+</div>
+<div class="border-r border-outline-variant/50 relative">
+<!-- Another Block -->
+<div class="absolute top-[60px] left-1 right-1 h-[60px] bg-secondary-container/20 border border-secondary/30 rounded-md p-sm z-10 overflow-hidden">
+<div class="w-1 absolute left-0 top-0 bottom-0 bg-secondary rounded-l-md"></div>
+<div class="font-label-md text-label-md text-on-secondary-container">Team Sync</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">9:00 AM - 10:00 AM</div>
+</div>
+</div>
+<div class="border-r border-outline-variant/50 relative"></div>
+<div class="border-r border-outline-variant/50 relative"></div>
+<div class="border-r border-outline-variant/50 relative bg-surface-container-low/50"></div>
+<div class="relative bg-surface-container-low/50"></div>
+</div>
+</div>
+<!-- Padding at bottom to ensure scrollability past grid -->
+<div class="h-32"></div>
+</div>
+</main>
+<!-- Floating Timer Widget (Overlay) -->
+<div class="fixed bottom-10 right-10 z-50 w-[340px] bg-surface-container-lowest rounded-xl shadow-widget border border-outline-variant overflow-hidden transition-all duration-300 ease-in-out cursor-default transform translate-y-0 opacity-100" id="timer-widget">
+<!-- Drag Handle / Header Area -->
+<div class="bg-surface-container-low border-b border-outline-variant px-md py-sm flex items-center justify-between cursor-move group">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-on-surface-variant text-[16px] group-hover:text-on-surface transition-colors">drag_indicator</span>
+<span class="font-label-md text-label-md text-on-surface-variant">Focus Timer</span>
+</div>
+<button class="text-on-surface-variant hover:text-on-surface transition-colors p-1 rounded-md hover:bg-surface-variant">
+<span class="material-symbols-outlined text-[16px]">close</span>
+</button>
+</div>
+<!-- STATE 1: Active Timer -->
+<div class="p-md flex flex-col items-center" id="widget-active-state">
+<!-- Context -->
+<div class="w-full text-center mb-md">
+<div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-tertiary-container/10 border border-tertiary-container/20 text-tertiary font-label-sm text-label-sm mb-2">
+<span class="material-symbols-outlined text-[14px] fill">bolt</span> Deep Work
+                </div>
+<h3 class="font-headline-md text-headline-md text-on-surface truncate w-full" title="UI Design">UI Design</h3>
+</div>
+<!-- Timer Display -->
+<div class="relative w-40 h-40 rounded-full border-4 border-surface-container-high flex flex-col items-center justify-center mb-md shadow-inner">
+<!-- SVG Progress Ring Mockup -->
+<svg class="absolute inset-0 w-full h-full -rotate-90 transform" viewbox="0 0 100 100">
+<circle class="text-tertiary opacity-90" cx="50" cy="50" fill="transparent" r="46" stroke="currentColor" stroke-dasharray="289" stroke-dashoffset="110" stroke-width="4"></circle>
+</svg>
+<div class="font-headline-xl text-headline-xl text-on-surface tracking-tighter relative z-10">01<span class="opacity-50 animate-pulse">:</span>14</div>
+<div class="font-label-md text-label-md text-tertiary relative z-10 font-bold mt-1 tracking-widest">22</div>
+</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant mb-md flex items-center justify-between w-full px-sm">
+<span>Elapsed: 00:45:38</span>
+<span>Total: 02:00:00</span>
+</div>
+<!-- Controls -->
+<div class="flex items-center justify-center gap-md w-full">
+<button class="w-10 h-10 rounded-full flex items-center justify-center bg-surface-container border border-outline-variant text-on-surface hover:bg-surface-variant transition-colors group" title="Take a break">
+<span class="material-symbols-outlined text-[20px] group-hover:scale-110 transition-transform">local_cafe</span>
+</button>
+<button class="w-14 h-14 rounded-full flex items-center justify-center bg-tertiary text-on-tertiary hover:opacity-90 shadow-md active:scale-95 transition-all" title="Pause">
+<span class="material-symbols-outlined text-[28px] fill">pause</span>
+</button>
+<button class="w-10 h-10 rounded-full flex items-center justify-center bg-surface-container border border-outline-variant text-error hover:bg-error-container hover:border-error-container hover:text-on-error-container transition-colors group" onclick="toggleWidgetState()" title="Stop">
+<span class="material-symbols-outlined text-[20px] group-hover:scale-110 transition-transform fill">stop</span>
+</button>
+</div>
+</div>
+<!-- STATE 2: Stop Confirmation (Hidden by default) -->
+<div class="p-md hidden flex-col items-center text-center bg-surface-bright" id="widget-confirm-state">
+<div class="w-12 h-12 rounded-full bg-primary-container/20 text-primary flex items-center justify-center mb-sm">
+<span class="material-symbols-outlined text-[24px]">flag</span>
+</div>
+<h4 class="font-headline-md text-headline-md text-on-surface mb-2">¿Quieres marcar este bloque como completado?</h4>
+<p class="font-body-md text-body-md text-on-surface-variant mb-md">Tiempo registrado: <strong>00:45:38</strong> de 02:00:00.</p>
+<div class="flex flex-col gap-sm w-full">
+<button class="w-full py-2.5 rounded-lg bg-primary text-on-primary font-label-md text-label-md hover:opacity-90 transition-opacity shadow-sm">
+                    Sí, registrar horas
+                </button>
+<button class="w-full py-2.5 rounded-lg border border-outline-variant text-on-surface hover:bg-surface-container-low font-label-md text-label-md transition-colors" onclick="toggleWidgetState()">
+                    No, dejar pendiente
+                </button>
+</div>
+</div>
+</div>
+<script>
+        // Simple JS to handle the widget state toggle between Active Timer and Stop Confirmation
+        function toggleWidgetState() {
+            const activeState = document.getElementById('widget-active-state');
+            const confirmState = document.getElementById('widget-confirm-state');
+            
+            if (activeState.classList.contains('hidden')) {
+                // Show Active, Hide Confirm
+                confirmState.classList.add('hidden');
+                confirmState.classList.remove('flex');
+                
+                activeState.classList.remove('hidden');
+                activeState.classList.add('flex');
+            } else {
+                // Hide Active, Show Confirm
+                activeState.classList.add('hidden');
+                activeState.classList.remove('flex');
+                
+                confirmState.classList.remove('hidden');
+                confirmState.classList.add('flex');
+            }
+        }
+        
+        // Optional: Simple logic to make the colon blink
+        setInterval(() => {
+            const colon = document.querySelector('.animate-pulse');
+            if(colon) {
+                colon.style.opacity = colon.style.opacity === '0' ? '0.5' : '0';
+            }
+        }, 1000);
+    </script>
+</body></html>

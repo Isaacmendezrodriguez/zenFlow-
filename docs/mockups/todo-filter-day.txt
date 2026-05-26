@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<title>ZenFlow Calendar - Focused Productivity</title>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .timer-glow {
+            box-shadow: 0 0 20px rgba(31, 16, 142, 0.15);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #e4e1eb;
+            border-radius: 10px;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-container-highest": "#e4e1eb",
+                      "on-error": "#ffffff",
+                      "background": "#fcf8ff",
+                      "on-error-container": "#93000a",
+                      "tertiary-fixed-dim": "#ffb694",
+                      "on-tertiary": "#ffffff",
+                      "surface-variant": "#e4e1eb",
+                      "inverse-surface": "#303037",
+                      "on-secondary": "#ffffff",
+                      "secondary-fixed": "#62fae3",
+                      "secondary-container": "#62fae3",
+                      "on-secondary-fixed-variant": "#005047",
+                      "primary-fixed-dim": "#c3c0ff",
+                      "surface-container-lowest": "#ffffff",
+                      "inverse-primary": "#c3c0ff",
+                      "on-tertiary-container": "#fe9562",
+                      "on-primary-container": "#a9a7ff",
+                      "surface": "#fcf8ff",
+                      "secondary-fixed-dim": "#3cddc7",
+                      "on-tertiary-fixed-variant": "#7a3003",
+                      "on-primary-fixed-variant": "#3b35a7",
+                      "outline-variant": "#c8c4d5",
+                      "on-secondary-container": "#007165",
+                      "error-container": "#ffdad6",
+                      "surface-container": "#f0ecf6",
+                      "on-background": "#1b1b22",
+                      "surface-dim": "#dcd8e3",
+                      "tertiary": "#511c00",
+                      "error": "#ba1a1a",
+                      "surface-container-low": "#f6f2fc",
+                      "tertiary-fixed": "#ffdbcc",
+                      "surface-tint": "#544fc0",
+                      "primary-fixed": "#e2dfff",
+                      "surface-bright": "#fcf8ff",
+                      "secondary": "#006b5f",
+                      "on-tertiary-fixed": "#351000",
+                      "surface-container-high": "#eae6f1",
+                      "tertiary-container": "#752c00",
+                      "primary-container": "#3730a3",
+                      "on-primary": "#ffffff",
+                      "primary": "#1f108e",
+                      "outline": "#777584",
+                      "on-secondary-fixed": "#00201c",
+                      "on-surface-variant": "#464553",
+                      "on-surface": "#1b1b22",
+                      "inverse-on-surface": "#f3eff9",
+                      "on-primary-fixed": "#00201c"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "xl": "80px",
+                      "lg": "48px",
+                      "md": "24px",
+                      "margin-mobile": "16px",
+                      "margin-desktop": "40px",
+                      "base": "8px",
+                      "sm": "12px",
+                      "gutter": "24px",
+                      "xs": "4px"
+              },
+              "fontFamily": {
+                      "headline-xl-mobile": ["Inter"],
+                      "label-sm": ["Inter"],
+                      "label-md": ["Inter"],
+                      "headline-lg": ["Inter"],
+                      "body-md": ["Inter"],
+                      "body-lg": ["Inter"],
+                      "headline-xl": ["Inter"],
+                      "headline-md": ["Inter"]
+              },
+              "fontSize": {
+                      "headline-xl-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "700"}],
+                      "label-sm": ["11px", {"lineHeight": "14px", "fontWeight": "600"}],
+                      "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "500"}],
+                      "headline-lg": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.015em", "fontWeight": "600"}],
+                      "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                      "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                      "headline-xl": ["36px", {"lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}]
+              }
+            },
+          },
+        }
+    </script>
+</head>
+<body class="bg-background text-on-surface font-body-md overflow-hidden h-screen flex">
+<!-- SideNavBar (from JSON) -->
+<nav class="hidden md:flex flex-col fixed left-0 top-0 h-screen p-md gap-base border-r border-outline-variant dark:border-outline bg-surface-container-low dark:bg-surface-container-lowest w-64 z-40">
+<div class="flex items-center gap-sm mb-lg px-sm">
+<div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-on-primary">
+<span class="material-symbols-outlined text-headline-md">spa</span>
+</div>
+<span class="font-headline-md text-headline-md font-bold text-on-surface dark:text-inverse-on-surface">ZenFlow</span>
+</div>
+<div class="flex flex-col gap-xs flex-1">
+<a class="flex items-center gap-sm px-sm py-base text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-high dark:hover:bg-surface-container-highest rounded-lg transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-sm px-sm py-base text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-high dark:hover:bg-surface-container-highest rounded-lg transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="inventory_2">inventory_2</span>
+<span class="font-label-md text-label-md">Backlog</span>
+</a>
+<!-- Active State: To-do semanal (Calendar view is its manifestation) -->
+<a class="flex items-center gap-sm px-sm py-base bg-primary-container dark:bg-primary text-on-primary-container dark:text-on-primary rounded-lg font-semibold transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="calendar_view_week">calendar_view_week</span>
+<span class="font-label-md text-label-md">To-do semanal</span>
+</a>
+<a class="flex items-center gap-sm px-sm py-base text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-high dark:hover:bg-surface-container-highest rounded-lg transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="corporate_fare">corporate_fare</span>
+<span class="font-label-md text-label-md">Organizations</span>
+</a>
+<a class="flex items-center gap-sm px-sm py-base text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-high dark:hover:bg-surface-container-highest rounded-lg transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="folder_open">folder_open</span>
+<span class="font-label-md text-label-md">Projects</span>
+</a>
+</div>
+<button class="bg-primary text-on-primary font-label-md text-label-md py-sm rounded-lg shadow-md hover:opacity-90 active:scale-[0.98] transition-all mb-lg">
+            New Task
+        </button>
+<div class="flex flex-col gap-xs pt-base border-t border-outline-variant">
+<a class="flex items-center gap-sm px-sm py-base text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-high dark:hover:bg-surface-container-highest rounded-lg transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-label-md text-label-md">Settings</span>
+</a>
+<a class="flex items-center gap-sm px-sm py-base text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-high dark:hover:bg-surface-container-highest rounded-lg transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+<span class="font-label-md text-label-md">Help</span>
+</a>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-1 ml-0 md:ml-64 flex flex-col h-screen bg-surface">
+<!-- TopAppBar (from JSON) -->
+<header class="sticky top-0 z-50 flex items-center justify-between px-md h-16 w-full bg-surface dark:bg-surface-container-low border-b border-outline-variant dark:border-outline">
+<div class="flex items-center gap-md">
+<div class="md:hidden">
+<span class="material-symbols-outlined text-primary" data-icon="menu">menu</span>
+</div>
+<div class="relative w-64">
+<span class="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-on-surface-variant" data-icon="search">search</span>
+<input class="w-full pl-xl pr-base py-xs bg-surface-container-low border-none rounded-full text-body-md focus:ring-1 focus:ring-primary" placeholder="Search tasks..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-md">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:bg-surface-container-high p-xs rounded-full" data-icon="notifications">notifications</span>
+</div>
+<div class="h-8 w-8 rounded-full bg-outline-variant overflow-hidden">
+<img alt="User avatar" data-alt="A professional close-up portrait of a user with a clean, high-key studio background. The lighting is soft and flattering, emphasizing a modern and minimalist aesthetic. The image exudes a sense of calm and focused professionalism, fitting perfectly into the ZenFlow productivity suite's design language of clarity and precision." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBTmDOgWY8K0KY_r7365Mgs8hFXsGTF6KjVu7LJQh1_CCehqhvj-HyICkayB49y_u1gB1LgnzNBEpRxrtw9nvJNtj7_BJP77SMDEEykBFZ_BHoJUTHfdo1b61Ckk5v1lw2X6b4j_ohpbWI3vePV02FyB_YX3BudJQ9ejDuka_LvSiUW3GX1YFb425a2qnDYzw1kzBAZAZiD26P1WsHq5_rNerROShwsCdcP0vI7XXP-938dMH8Xi8jxO3Dp-dxW0gcj8XlKkl868W77"/>
+</div>
+</div>
+</header>
+<!-- Calendar Container -->
+<div class="flex-1 flex flex-row overflow-hidden">
+<!-- Left Side: Time Grid -->
+<div class="flex-1 flex flex-col overflow-y-auto custom-scrollbar p-md">
+<div class="flex items-center justify-between mb-lg">
+<div>
+<h1 class="font-headline-lg text-headline-lg">Hoy, 24 de Octubre</h1>
+<p class="text-on-surface-variant">Jueves • Semana 43</p>
+</div>
+<div class="flex gap-xs">
+<button class="p-base hover:bg-surface-container-high rounded-lg transition-colors border border-outline-variant">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<button class="px-md py-base hover:bg-surface-container-high rounded-lg transition-colors border border-outline-variant font-label-md">Hoy</button>
+<button class="p-base hover:bg-surface-container-high rounded-lg transition-colors border border-outline-variant">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</div>
+<!-- Grid Representation -->
+<div class="relative min-h-[800px] border-l border-outline-variant">
+<!-- Time Labels -->
+<div class="absolute -left-12 top-0 bottom-0 flex flex-col justify-between py-xs text-on-surface-variant font-label-md w-10 text-right">
+<span>08:00</span>
+<span>09:00</span>
+<span>10:00</span>
+<span>11:00</span>
+<span>12:00</span>
+<span>13:00</span>
+<span>14:00</span>
+<span>15:00</span>
+<span>16:00</span>
+</div>
+<!-- Grid Lines -->
+<div class="absolute inset-0 flex flex-col justify-between">
+<div class="border-b border-outline-variant w-full h-0"></div>
+<div class="border-b border-outline-variant w-full h-0"></div>
+<div class="border-b border-outline-variant w-full h-0"></div>
+<div class="border-b border-outline-variant w-full h-0"></div>
+<div class="border-b border-outline-variant w-full h-0"></div>
+<div class="border-b border-outline-variant w-full h-0"></div>
+<div class="border-b border-outline-variant w-full h-0"></div>
+<div class="border-b border-outline-variant w-full h-0"></div>
+<div class="border-b border-outline-variant w-full h-0"></div>
+</div>
+<!-- Task Bloacks -->
+<!-- 1. Bloques Simultáneos (Traslape) -->
+<div class="absolute top-[12.5%] left-0 right-4 h-[20%] flex gap-base">
+<div class="flex-1 bg-primary-container/20 border-l-4 border-primary p-sm rounded-r-lg shadow-sm group hover:scale-[1.01] transition-transform">
+<div class="flex justify-between items-start">
+<span class="font-label-md text-primary font-bold">Daily Sync</span>
+<span class="material-symbols-outlined text-primary text-[18px]" data-icon="sync" style="font-variation-settings: 'FILL' 1;">sync</span>
+</div>
+<p class="text-label-sm text-on-surface-variant">09:00 - 10:30</p>
+<div class="mt-base px-base py-xs bg-error-container text-on-error-container text-[10px] rounded-full inline-flex items-center gap-xs font-bold uppercase tracking-wider">
+<span class="material-symbols-outlined text-[12px]">warning</span>
+                                Traslape detectado
+                            </div>
+</div>
+<div class="flex-1 bg-secondary-container/20 border-l-4 border-secondary p-sm rounded-r-lg shadow-sm group hover:scale-[1.01] transition-transform">
+<div class="flex justify-between items-start">
+<span class="font-label-md text-secondary font-bold">Review Design Ops</span>
+<span class="material-symbols-outlined text-secondary text-[18px]" data-icon="palette">palette</span>
+</div>
+<p class="text-label-sm text-on-surface-variant">09:15 - 10:00</p>
+</div>
+</div>
+<!-- 3. Bloque 'No completado' de ayer -->
+<div class="absolute top-[0%] left-0 right-0 h-[10%] opacity-60">
+<div class="h-full bg-surface-container-highest border-l-4 border-outline p-sm rounded-r-lg flex justify-between items-center">
+<div>
+<span class="font-label-md text-on-surface-variant line-through">Llamada de feedback - Proyecto Alpha</span>
+<p class="text-label-sm text-error font-medium">No completado (Ayer)</p>
+</div>
+<button class="px-sm py-xs bg-surface text-primary border border-primary rounded-full text-label-sm font-bold hover:bg-primary hover:text-on-primary transition-colors">
+                                Reprogramar
+                            </button>
+</div>
+</div>
+<!-- 5. Bloque Recurrente -->
+<div class="absolute top-[45%] left-0 right-0 h-[15%]">
+<div class="h-full bg-tertiary-fixed/20 border-l-4 border-tertiary p-sm rounded-r-lg shadow-sm group hover:scale-[1.01] transition-transform">
+<div class="flex justify-between items-start">
+<div class="flex items-center gap-xs">
+<span class="font-label-md text-tertiary font-bold">Deep Work: Coding</span>
+<span class="material-symbols-outlined text-tertiary text-[16px]" data-icon="repeat">repeat</span>
+</div>
+<span class="material-symbols-outlined text-tertiary text-[18px]" data-icon="code">code</span>
+</div>
+<p class="text-label-sm text-on-surface-variant">11:30 - 13:00</p>
+<div class="mt-base flex gap-xs">
+<span class="px-base py-xs bg-surface-container rounded text-[10px] text-on-surface-variant font-medium">Productivity</span>
+</div>
+</div>
+</div>
+<!-- Normal Active Task -->
+<div class="absolute top-[65%] left-0 right-0 h-[20%]">
+<div class="h-full bg-primary-container text-on-primary-container p-sm rounded-lg shadow-lg relative overflow-hidden">
+<div class="relative z-10">
+<div class="flex justify-between items-start">
+<span class="font-headline-md text-on-primary-fixed-variant font-bold">Finalizar UI Components</span>
+<span class="material-symbols-outlined text-[20px]" data-icon="timer">timer</span>
+</div>
+<p class="text-label-md opacity-80">14:00 - 16:00 (En progreso)</p>
+<div class="mt-md w-full bg-white/20 h-1.5 rounded-full overflow-hidden">
+<div class="bg-white h-full w-[65%]"></div>
+</div>
+</div>
+<div class="absolute right-0 top-0 h-full w-24 bg-gradient-to-l from-primary/20 to-transparent pointer-events-none"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Side: Sin horario asignado -->
+<aside class="w-80 bg-surface-container-low border-l border-outline-variant flex flex-col overflow-hidden">
+<div class="p-md border-b border-outline-variant flex items-center justify-between bg-surface">
+<h2 class="font-headline-md text-headline-md">Sin horario</h2>
+<span class="bg-primary-container text-on-primary-container px-base py-xs rounded-full text-[10px] font-bold">4 Pendientes</span>
+</div>
+<div class="flex-1 overflow-y-auto custom-scrollbar p-md flex flex-col gap-md">
+<p class="text-label-sm text-on-surface-variant uppercase tracking-widest font-bold">Arrastra al calendario</p>
+<!-- Draggable Cards -->
+<div class="p-md bg-surface rounded-xl border border-outline-variant shadow-sm cursor-grab active:cursor-grabbing hover:border-primary transition-all group">
+<div class="flex justify-between mb-xs">
+<span class="font-label-md font-bold">Revisar propuesta</span>
+<span class="material-symbols-outlined text-on-surface-variant text-[18px]">drag_indicator</span>
+</div>
+<div class="flex items-center gap-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px]">schedule</span>
+<span class="text-label-md">2h</span>
+</div>
+</div>
+<div class="p-md bg-surface rounded-xl border border-outline-variant shadow-sm cursor-grab active:cursor-grabbing hover:border-primary transition-all group">
+<div class="flex justify-between mb-xs">
+<span class="font-label-md font-bold">Update Roadmap 2024</span>
+<span class="material-symbols-outlined text-on-surface-variant text-[18px]">drag_indicator</span>
+</div>
+<div class="flex items-center gap-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px]">schedule</span>
+<span class="text-label-md">45m</span>
+</div>
+</div>
+<div class="p-md bg-surface rounded-xl border border-outline-variant shadow-sm cursor-grab active:cursor-grabbing hover:border-primary transition-all group border-l-4 border-l-tertiary">
+<div class="flex justify-between mb-xs">
+<span class="font-label-md font-bold">Email a Stakeholders</span>
+<span class="material-symbols-outlined text-on-surface-variant text-[18px]">drag_indicator</span>
+</div>
+<div class="flex items-center gap-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px]">schedule</span>
+<span class="text-label-md">1h</span>
+</div>
+<span class="mt-sm inline-block px-base py-xs bg-tertiary-fixed text-tertiary text-[10px] rounded font-bold">PRIORIDAD ALTA</span>
+</div>
+<div class="p-md bg-surface rounded-xl border border-outline-variant shadow-sm cursor-grab active:cursor-grabbing hover:border-primary transition-all group">
+<div class="flex justify-between mb-xs">
+<span class="font-label-md font-bold">Documentación API</span>
+<span class="material-symbols-outlined text-on-surface-variant text-[18px]">drag_indicator</span>
+</div>
+<div class="flex items-center gap-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px]">schedule</span>
+<span class="text-label-md">3h</span>
+</div>
+</div>
+</div>
+<!-- Small Dashboard Mini-Widget -->
+<div class="p-md m-md bg-primary-container text-on-primary-container rounded-2xl">
+<h3 class="font-label-md font-bold mb-sm">Stats de hoy</h3>
+<div class="grid grid-cols-2 gap-sm">
+<div class="bg-white/10 p-sm rounded-lg">
+<p class="text-[10px] opacity-70">Focus Time</p>
+<p class="text-headline-md font-bold">4.2h</p>
+</div>
+<div class="bg-white/10 p-sm rounded-lg">
+<p class="text-[10px] opacity-70">Tareas</p>
+<p class="text-headline-md font-bold">12/18</p>
+</div>
+</div>
+</div>
+</aside>
+</div>
+</main>
+<!-- 4. Widget de temporizador flotante -->
+<div class="fixed bottom-md right-md bg-surface border border-outline-variant rounded-2xl p-base flex items-center gap-md shadow-xl timer-glow z-[100] cursor-pointer hover:scale-105 transition-transform" id="floating-timer">
+<!-- Circular Progress -->
+<div class="relative h-16 w-16 flex items-center justify-center">
+<svg class="absolute inset-0 h-full w-full -rotate-90">
+<circle cx="32" cy="32" fill="transparent" r="28" stroke="#f0ecf6" stroke-width="4"></circle>
+<circle cx="32" cy="32" fill="transparent" r="28" stroke="#1f108e" stroke-dasharray="175" stroke-dashoffset="60" stroke-linecap="round" stroke-width="4"></circle>
+</svg>
+<div class="text-center">
+<p class="font-bold text-label-md text-primary">24:12</p>
+</div>
+</div>
+<div class="pr-md">
+<p class="font-label-md text-primary font-bold leading-tight">Finalizar UI Components</p>
+<p class="text-label-sm text-on-surface-variant">Próximo: Break (5m)</p>
+<div class="flex gap-sm mt-xs">
+<span class="material-symbols-outlined text-[18px] text-primary hover:bg-primary/10 rounded">pause_circle</span>
+<span class="material-symbols-outlined text-[18px] text-on-surface-variant hover:bg-surface-container-high rounded">stop_circle</span>
+</div>
+</div>
+<button class="p-xs text-on-surface-variant hover:text-error transition-colors">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+</div>
+<script>
+        // Simple micro-interaction for the timer
+        let timeLeft = 1452; // 24:12 in seconds
+        const timerDisplay = document.querySelector('#floating-timer .text-primary');
+        
+        setInterval(() => {
+            if (timeLeft > 0) {
+                timeLeft--;
+                const mins = Math.floor(timeLeft / 60);
+                const secs = timeLeft % 60;
+                if (timerDisplay) {
+                    timerDisplay.innerText = `${mins}:${secs.toString().padStart(2, '0')}`;
+                }
+            }
+        }, 1000);
+
+        // Interaction for close button
+        document.querySelector('#floating-timer button').addEventListener('click', (e) => {
+            e.stopPropagation();
+            document.querySelector('#floating-timer').style.display = 'none';
+        });
+    </script>
+</body></html>
