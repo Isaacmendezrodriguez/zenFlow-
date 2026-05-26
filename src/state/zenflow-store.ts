@@ -40,6 +40,9 @@ import {
 } from "../lib/business-rules";
 import { calculateComplexTaskProgress, calculateEstimatedHoursFromSubtasks, calculateHourDifference, calculateRealHoursFromSubtasks } from "../lib/calculations";
 import { addDays } from "date-fns";
+import { getSupabaseClient, isSupabaseConfigured } from "../lib/supabase";
+import { loadOrSeedWorkspace } from "../features/workspace/workspace-sync.service";
+import type { Json } from "../types/database";
 
 const userId = "user-zenflow";
 
@@ -141,14 +144,14 @@ interface ZenflowState {
 }
 
 export const useZenflowStore = create<ZenflowState>((set, get) => ({
-  organizations: initialOrganizations,
-  projects: initialProjects,
-  tasks: initialTasks,
-  subtasks: initialSubtasks,
-  taskLinks: initialTaskLinks,
-  calendarBlocks: initialCalendarBlocks,
-  activityLogs: initialActivityLogs,
-  notifications: initialNotifications,
+  organizations: isSupabaseConfigured ? [] : initialOrganizations,
+  projects: isSupabaseConfigured ? [] : initialProjects,
+  tasks: isSupabaseConfigured ? [] : initialTasks,
+  subtasks: isSupabaseConfigured ? [] : initialSubtasks,
+  taskLinks: isSupabaseConfigured ? [] : initialTaskLinks,
+  calendarBlocks: isSupabaseConfigured ? [] : initialCalendarBlocks,
+  activityLogs: isSupabaseConfigured ? [] : initialActivityLogs,
+  notifications: isSupabaseConfigured ? [] : initialNotifications,
   userSettings: initialUserSettings,
   filters: {
     organizationId: "all",
@@ -156,7 +159,7 @@ export const useZenflowStore = create<ZenflowState>((set, get) => ({
     status: "all",
     searchQuery: "",
   },
-  trashItems: initialTrashItems,
+  trashItems: isSupabaseConfigured ? [] : initialTrashItems,
   activeTimer: undefined,
   toast: undefined,
 
@@ -322,6 +325,7 @@ export const useZenflowStore = create<ZenflowState>((set, get) => ({
     if (!task) return { ok: false, message: "Tarea no encontrada." };
     if (!canEditTask(task)) return { ok: false, message: "Las tareas completadas, archivadas o eliminadas son de solo lectura." };
     set((state) => ({ tasks: state.tasks.map((item) => (item.id === id ? { ...item, ...input } : item)) }));
+    persistTaskUpdate(id, input);
     return { ok: true };
   },
 
@@ -345,6 +349,7 @@ export const useZenflowStore = create<ZenflowState>((set, get) => ({
         tasks: current.tasks.map((item) => (item.id === id ? { ...recalculateTaskFromSubtasks({ ...item, status: "done", progress: 100, completedAt: new Date().toISOString() }, completedSubtasks), status: "done", progress: 100, completedAt: new Date().toISOString() } : item)),
         activityLogs: [...current.activityLogs, createLog(id, "card_moved_to_done", options.comment || "Card movida a terminada")],
       }));
+      persistComplexTaskDone(id, completedSubtasks, options.comment);
       return { ok: true };
     }
 
@@ -359,6 +364,7 @@ export const useZenflowStore = create<ZenflowState>((set, get) => ({
       }),
       activityLogs: [...current.activityLogs, createLog(id, "card_status_changed", `Card movida a ${targetStatus}`)],
     }));
+    persistTaskMove(id);
     return { ok: true };
   },
 
@@ -370,6 +376,7 @@ export const useZenflowStore = create<ZenflowState>((set, get) => ({
       tasks: state.tasks.map((item) => (item.id === id ? { ...item, isArchived: true, archivedAt: new Date().toISOString() } : item)),
       activityLogs: [...state.activityLogs, createLog(id, "card_archived", "Card archivada")],
     }));
+    persistTaskArchive(id);
     return { ok: true };
   },
 
@@ -381,6 +388,7 @@ export const useZenflowStore = create<ZenflowState>((set, get) => ({
       tasks: state.tasks.map((item) => (item.id === id ? { ...item, deletedAt: now.toISOString() } : item)),
       trashItems: [...state.trashItems, createTrashItem("task", task.id, task.title, task, now)],
     }));
+    persistTaskDelete(task, now);
   },
 
   completeSubtask: (id, realHours) => {
@@ -396,6 +404,7 @@ export const useZenflowStore = create<ZenflowState>((set, get) => ({
         activityLogs: [...state.activityLogs, createLog(subtask.taskId, "subtask_completed", `${subtask.title} completada con ${realHours} horas reales`)],
       };
     });
+    persistSubtaskHours(id, realHours, true);
   },
 
   updateSubtaskHours: (id, realHours, complete = false) => {
@@ -420,6 +429,7 @@ export const useZenflowStore = create<ZenflowState>((set, get) => ({
         activityLogs: [...state.activityLogs, createLog(subtask.taskId, "real_hours_registered", `${subtask.title}: ${realHours} horas reales registradas`)],
       };
     });
+    persistSubtaskHours(id, realHours, complete);
   },
 
   updateTaskHours: (id, realHours, complete = false) => {
@@ -440,6 +450,7 @@ export const useZenflowStore = create<ZenflowState>((set, get) => ({
       }),
       activityLogs: [...state.activityLogs, createLog(id, "real_hours_registered", `${realHours} horas reales registradas`)],
     }));
+    persistTaskHours(id, realHours, complete);
   },
 
   addTaskLink: (taskId, input) => {
@@ -447,6 +458,7 @@ export const useZenflowStore = create<ZenflowState>((set, get) => ({
       taskLinks: [...state.taskLinks, { id: makeId("link"), userId, taskId, ...input }],
       activityLogs: [...state.activityLogs, createLog(taskId, "link_added", `Link agregado: ${input.title}`)],
     }));
+    persistTaskLink(taskId, input);
   },
 
   addTaskNote: (taskId, note) => {
@@ -454,6 +466,7 @@ export const useZenflowStore = create<ZenflowState>((set, get) => ({
       tasks: state.tasks.map((task) => (task.id === taskId ? { ...task, notes: [task.notes, note].filter(Boolean).join("\n\n") } : task)),
       activityLogs: [...state.activityLogs, createLog(taskId, "note_added", "Nota agregada")],
     }));
+    persistTaskNote(taskId, get().tasks.find((task) => task.id === taskId)?.notes ?? note);
   },
 
   createCalendarBlock: (input) => {
@@ -484,6 +497,7 @@ export const useZenflowStore = create<ZenflowState>((set, get) => ({
     };
     const warning = getBlockOverlapWarning(block, get().calendarBlocks);
     set((state) => ({ calendarBlocks: [...state.calendarBlocks, block] }));
+    persistCalendarBlock(block);
     return { ok: true, block, warning };
   },
 
@@ -526,6 +540,7 @@ export const useZenflowStore = create<ZenflowState>((set, get) => ({
         activityLogs: block.taskId ? [...current.activityLogs, createLog(block.taskId, "real_hours_registered", `Bloque completado, ${appliedHours} horas reales aplicadas`)] : current.activityLogs,
       };
     });
+    persistCalendarBlockComplete(id, appliedHours);
     return { ok: true };
   },
 
@@ -539,6 +554,7 @@ export const useZenflowStore = create<ZenflowState>((set, get) => ({
         : state.tasks,
       activityLogs: block.taskId ? [...state.activityLogs, createLog(block.taskId, "calendar_block_deleted", "Bloque de calendario eliminado")] : state.activityLogs,
     }));
+    persistCalendarBlockDelete(block);
     return { ok: true, message: block.status === "completed" && (block.taskId || block.subtaskId) ? "Las horas reales del bloque completado fueron descontadas si aplicaba." : undefined };
   },
 
@@ -559,16 +575,25 @@ export const useZenflowStore = create<ZenflowState>((set, get) => ({
       tasks: item.entityType === "task" ? state.tasks.map((task) => (task.id === item.entityId ? { ...task, deletedAt: undefined } : task)) : state.tasks,
       trashItems: state.trashItems.filter((trashItem) => trashItem.id !== id),
     }));
+    persistTrashRestore(item);
     return { ok: true };
   },
 
   permanentlyDeleteTrashItem: (id) => {
     set((state) => ({ trashItems: state.trashItems.filter((item) => item.id !== id) }));
+    persistTrashPermanentDelete(id);
   },
 
-  emptyTrash: () => set({ trashItems: [] }),
+  emptyTrash: () => {
+    set({ trashItems: [] });
+    persistTrashEmpty();
+  },
 
-  updateSettings: (input) => set((state) => ({ userSettings: { ...state.userSettings, ...input } })),
+  updateSettings: (input) => set((state) => {
+    const userSettings = { ...state.userSettings, ...input };
+    persistSettings(userSettings);
+    return { userSettings };
+  }),
 
   getDashboardMetrics: () => {
     const state = get();
@@ -600,6 +625,299 @@ export const useZenflowStore = create<ZenflowState>((set, get) => ({
 
 function makeId(prefix: string): string {
   return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+}
+
+function runRemoteSync(task: () => Promise<void>) {
+  if (!isSupabaseConfigured) return;
+  task().catch((error) => {
+    console.error("No se pudo sincronizar con Supabase.", error);
+    useZenflowStore.setState({ toast: "No se pudo guardar en Supabase. Revisa tu conexion." });
+  });
+}
+
+async function refreshRemoteWorkspace() {
+  const snapshot = await loadOrSeedWorkspace();
+  if (snapshot) useZenflowStore.setState(snapshot);
+}
+
+async function getRemoteUserId() {
+  const { data, error } = await getSupabaseClient().auth.getUser();
+  if (error) throw error;
+  if (!data.user) throw new Error("Usuario no autenticado.");
+  return data.user.id;
+}
+
+function persistTaskUpdate(id: ID, input: Partial<Task>) {
+  runRemoteSync(async () => {
+    const update = mapTaskUpdate(input);
+    if (!Object.keys(update).length) return;
+    const { error } = await getSupabaseClient().from("tasks").update(update).eq("id", id);
+    if (error) throw error;
+    await refreshRemoteWorkspace();
+  });
+}
+
+function persistTaskMove(id: ID) {
+  const task = useZenflowStore.getState().tasks.find((item) => item.id === id);
+  if (!task) return;
+  persistTaskUpdate(id, task);
+}
+
+function persistComplexTaskDone(id: ID, subtasks: Subtask[], comment?: string) {
+  runRemoteSync(async () => {
+    const task = useZenflowStore.getState().tasks.find((item) => item.id === id);
+    if (!task) return;
+    const client = getSupabaseClient();
+    const { error: taskError } = await client.from("tasks").update(mapTaskUpdate(task)).eq("id", id);
+    if (taskError) throw taskError;
+    for (const subtask of subtasks) {
+      const { error } = await client.from("subtasks").update(mapSubtaskUpdate(subtask)).eq("id", subtask.id);
+      if (error) throw error;
+    }
+    if (comment) await persistActivityLog(id, "card_moved_to_done", comment);
+    await refreshRemoteWorkspace();
+  });
+}
+
+function persistTaskArchive(id: ID) {
+  runRemoteSync(async () => {
+    const { error } = await getSupabaseClient().from("tasks").update({ is_archived: true, archived_at: new Date().toISOString() }).eq("id", id);
+    if (error) throw error;
+    await refreshRemoteWorkspace();
+  });
+}
+
+function persistTaskDelete(task: Task, now: Date) {
+  runRemoteSync(async () => {
+    const userId = await getRemoteUserId();
+    const client = getSupabaseClient();
+    const deletedAt = now.toISOString();
+    const { error: taskError } = await client.from("tasks").update({ deleted_at: deletedAt }).eq("id", task.id);
+    if (taskError) throw taskError;
+    const { error: trashError } = await client.from("trash_items").insert({
+      user_id: userId,
+      entity_type: "task",
+      entity_id: task.id,
+      name: task.title,
+      entity_snapshot: task as unknown as Json,
+      deleted_at: deletedAt,
+      permanent_delete_at: addDays(now, 3).toISOString(),
+    });
+    if (trashError) throw trashError;
+    await refreshRemoteWorkspace();
+  });
+}
+
+function persistSubtaskHours(id: ID, realHours: number, complete = false) {
+  runRemoteSync(async () => {
+    const subtask = useZenflowStore.getState().subtasks.find((item) => item.id === id);
+    if (!subtask) return;
+    const client = getSupabaseClient();
+    const { error } = await client.from("subtasks").update(mapSubtaskUpdate(subtask)).eq("id", id);
+    if (error) throw error;
+    const parent = useZenflowStore.getState().tasks.find((task) => task.id === subtask.taskId);
+    if (parent) {
+      const { error: taskError } = await client.from("tasks").update(mapTaskUpdate(parent)).eq("id", parent.id);
+      if (taskError) throw taskError;
+    }
+    await persistActivityLog(subtask.taskId, complete ? "subtask_completed" : "real_hours_registered", `${subtask.title}: ${realHours} horas reales`);
+    await refreshRemoteWorkspace();
+  });
+}
+
+function persistTaskHours(id: ID, realHours: number, complete = false) {
+  runRemoteSync(async () => {
+    const task = useZenflowStore.getState().tasks.find((item) => item.id === id);
+    if (!task) return;
+    const { error } = await getSupabaseClient().from("tasks").update(mapTaskUpdate(task)).eq("id", id);
+    if (error) throw error;
+    await persistActivityLog(id, complete ? "card_completed" : "real_hours_registered", `${realHours} horas reales`);
+    await refreshRemoteWorkspace();
+  });
+}
+
+function persistTaskLink(taskId: ID, input: Pick<TaskLink, "title" | "url" | "type" | "description">) {
+  runRemoteSync(async () => {
+    const userId = await getRemoteUserId();
+    const { error } = await getSupabaseClient().from("task_links").insert({
+      user_id: userId,
+      task_id: taskId,
+      title: input.title,
+      url: input.url,
+      type: input.type,
+      description: input.description ?? null,
+    });
+    if (error) throw error;
+    await refreshRemoteWorkspace();
+  });
+}
+
+function persistTaskNote(taskId: ID, notes: string) {
+  runRemoteSync(async () => {
+    const { error } = await getSupabaseClient().from("tasks").update({ notes }).eq("id", taskId);
+    if (error) throw error;
+    await persistActivityLog(taskId, "note_added", "Nota agregada");
+    await refreshRemoteWorkspace();
+  });
+}
+
+function persistCalendarBlock(block: CalendarBlock) {
+  runRemoteSync(async () => {
+    const userId = await getRemoteUserId();
+    const { error } = await getSupabaseClient().from("calendar_blocks").insert({
+      user_id: userId,
+      organization_id: block.organizationId ?? null,
+      project_id: block.projectId ?? null,
+      task_id: block.taskId ?? null,
+      subtask_id: block.subtaskId ?? null,
+      title: block.title,
+      description: block.description ?? null,
+      block_type: block.blockType,
+      status: block.status,
+      start_at: block.startAt,
+      end_at: block.endAt,
+      duration_hours: block.durationHours,
+      real_hours_applied: block.realHoursApplied,
+      affects_backlog: Boolean(block.taskId || block.subtaskId),
+      color: block.color,
+    });
+    if (error) throw error;
+    await refreshRemoteWorkspace();
+  });
+}
+
+function persistCalendarBlockComplete(id: ID, realHours: number) {
+  runRemoteSync(async () => {
+    const block = useZenflowStore.getState().calendarBlocks.find((item) => item.id === id);
+    const client = getSupabaseClient();
+    const { error } = await client.from("calendar_blocks").update({ status: "completed", completed_at: block?.completedAt ?? new Date().toISOString(), real_hours_applied: realHours }).eq("id", id);
+    if (error) throw error;
+    const task = block?.taskId ? useZenflowStore.getState().tasks.find((item) => item.id === block.taskId) : undefined;
+    if (task) {
+      const { error: taskError } = await client.from("tasks").update(mapTaskUpdate(task)).eq("id", task.id);
+      if (taskError) throw taskError;
+    }
+    const subtask = block?.subtaskId ? useZenflowStore.getState().subtasks.find((item) => item.id === block.subtaskId) : undefined;
+    if (subtask) {
+      const { error: subtaskError } = await client.from("subtasks").update(mapSubtaskUpdate(subtask)).eq("id", subtask.id);
+      if (subtaskError) throw subtaskError;
+    }
+    await refreshRemoteWorkspace();
+  });
+}
+
+function persistCalendarBlockDelete(block: CalendarBlock) {
+  runRemoteSync(async () => {
+    const client = getSupabaseClient();
+    const { error } = await client.from("calendar_blocks").update({ deleted_at: new Date().toISOString() }).eq("id", block.id);
+    if (error) throw error;
+    if (block.taskId) {
+      const task = useZenflowStore.getState().tasks.find((item) => item.id === block.taskId);
+      if (task) {
+        const { error: taskError } = await client.from("tasks").update(mapTaskUpdate(task)).eq("id", task.id);
+        if (taskError) throw taskError;
+      }
+    }
+    await refreshRemoteWorkspace();
+  });
+}
+
+function persistTrashRestore(item: TrashItem) {
+  runRemoteSync(async () => {
+    const client = getSupabaseClient();
+    if (item.entityType === "task") {
+      const { error } = await client.from("tasks").update({ deleted_at: null }).eq("id", item.entityId);
+      if (error) throw error;
+    }
+    if (item.entityType === "organization") {
+      const { error } = await client.from("organizations").update({ deleted_at: null }).eq("id", item.entityId);
+      if (error) throw error;
+    }
+    if (item.entityType === "project") {
+      const { error } = await client.from("projects").update({ deleted_at: null }).eq("id", item.entityId);
+      if (error) throw error;
+    }
+    const { error: trashError } = await client.from("trash_items").delete().eq("id", item.id);
+    if (trashError) throw trashError;
+    await refreshRemoteWorkspace();
+  });
+}
+
+function persistTrashPermanentDelete(id: ID) {
+  runRemoteSync(async () => {
+    const { error } = await getSupabaseClient().from("trash_items").delete().eq("id", id);
+    if (error) throw error;
+    await refreshRemoteWorkspace();
+  });
+}
+
+function persistTrashEmpty() {
+  runRemoteSync(async () => {
+    const userId = await getRemoteUserId();
+    const { error } = await getSupabaseClient().from("trash_items").delete().eq("user_id", userId);
+    if (error) throw error;
+    await refreshRemoteWorkspace();
+  });
+}
+
+function persistSettings(settings: UserSettings) {
+  runRemoteSync(async () => {
+    const userId = await getRemoteUserId();
+    const { error } = await getSupabaseClient().from("user_settings").upsert({
+      user_id: userId,
+      theme: settings.theme,
+      primary_color: settings.primaryColor,
+      secondary_color: settings.secondaryColor,
+      priority_colors: settings.priorityColors,
+      enable_review_column: settings.enableReviewColumn,
+      enable_blocked_column: settings.enableBlockedColumn,
+      enable_waiting_column: settings.enableWaitingColumn,
+      enable_internal_notifications: settings.enableInternalNotifications,
+      notify_before_block_minutes: settings.notifyBeforeBlockMinutes,
+      daily_summary: settings.dailySummary,
+      timer_break_minutes: settings.timerBreakMinutes,
+      backlog_view: settings.backlogView,
+    }, { onConflict: "user_id" });
+    if (error) throw error;
+  });
+}
+
+async function persistActivityLog(taskId: ID, eventType: string, message: string) {
+  const userId = await getRemoteUserId();
+  const { error } = await getSupabaseClient().from("activity_logs").insert({ user_id: userId, task_id: taskId, event_type: eventType, message });
+  if (error) throw error;
+}
+
+function mapTaskUpdate(input: Partial<Task>) {
+  return {
+    organization_id: input.organizationId,
+    title: input.title,
+    description: input.description,
+    status: input.status,
+    priority: input.priority,
+    due_date: input.dueDate,
+    estimated_hours: input.estimatedHours,
+    real_hours: input.realHours,
+    progress: input.progress,
+    notes: input.notes,
+    is_archived: input.isArchived,
+    archived_at: input.archivedAt,
+    completed_at: input.completedAt,
+    deleted_at: input.deletedAt,
+  };
+}
+
+function mapSubtaskUpdate(input: Partial<Subtask>) {
+  return {
+    title: input.title,
+    description: input.description,
+    priority: input.priority,
+    status: input.status,
+    estimated_hours: input.estimatedHours,
+    real_hours: input.realHours,
+    progress: input.progress,
+    completed_at: input.completedAt,
+  };
 }
 
 function createLog(taskId: ID, eventType: string, message: string): ActivityLog {

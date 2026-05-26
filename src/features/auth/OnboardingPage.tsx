@@ -7,10 +7,12 @@ import { Textarea } from "../../components/ui/Textarea";
 import { isSupabaseConfigured } from "../../lib/supabase";
 import { useZenflowStore } from "../../state/zenflow-store";
 import { createOrganization as createRemoteOrganization } from "../organizations/services/organizations.service";
+import { loadOrSeedWorkspace } from "../workspace/workspace-sync.service";
 
 export function OnboardingPage() {
   const navigate = useNavigate();
   const createMockOrganization = useZenflowStore((state) => state.createOrganization);
+  const hydrateWorkspace = useZenflowStore((state) => state.hydrateWorkspace);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [message, setMessage] = useState<string | null>(null);
@@ -24,7 +26,11 @@ export function OnboardingPage() {
     }
     const result = await createRemoteOrganization({ name, description });
     if (result.error) setMessage(result.error);
-    else navigate("/dashboard");
+    else {
+      const snapshot = await loadOrSeedWorkspace();
+      if (snapshot) hydrateWorkspace(snapshot);
+      navigate("/dashboard");
+    }
   }
 
   return (
